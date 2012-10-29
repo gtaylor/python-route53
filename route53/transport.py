@@ -134,6 +134,7 @@ class BaseTransport(object):
 
         raise NotImplementedError
 
+
 class RequestsTransport(BaseTransport):
     """
     A requests-based transport. More details may be found on the
