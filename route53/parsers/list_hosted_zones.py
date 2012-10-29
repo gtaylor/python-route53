@@ -1,23 +1,52 @@
-from lxml import etree
-from route53.util import prettyprint_xml
+from route53.hosted_zone import HostedZone
 
-def list_hosted_zones_parser(xml_str):
-    root = etree.fromstring(xml_str)
-    print(prettyprint_xml(root))
-    print(root)
+# This dict maps tag names in the API response to a kwarg key used to
+# instantiate HostedZone instances.
+HOSTED_ZONE_TAG_TO_KWARG_MAP = {
+    'Id': 'id',
+    'Name': 'name',
+    'CallerReference': 'caller_reference',
+    'ResourceRecordSetCount': 'resource_record_set_count',
+}
 
-    if not 'ListHostedZonesResponse' in root.tag:
-        # TODO: Error condition.
-        raise Exception("Something bad happened!")
+def list_hosted_zones_parser(root, connection):
+    """
+    Parses the API responses for the
+    :py:meth:`route53.connection.Route53Connection.list_hosted_zones` method.
 
-    is_truncated = root.find('./{*}IsTruncated').text == 'true'
+    :param lxml.etree._Element root: The root node of the etree parsed
+        response from the API.
+    :param Route53Connection connection: The connection instance used to
+        query the API.
+    :rtype: HostedZone
+    :returns: A generator of fully formed HostedZone instances.
+    """
 
-    for child in root:
-        print(child.tag)
+    # The rest of the list pagination tags are handled higher up in the stack.
+    # We'll just worry about the HostedZones tag, which has HostedZone tags
+    # nested beneath it.
+    zones = root.find('./{*}HostedZones')
 
-    if not is_truncated:
-        return
+    for zone in zones:
+        # This dict will be used to instantiate a HostedZone instance to yield.
+        kwargs = {}
+        # Within HostedZone tags are a number of sub-tags that include info
+        # about the instance.
+        for field in zone:
+            # Cheesy way to strip off the namespace.
+            tag_name = field.tag.split('}')[1]
 
+            if tag_name == 'Config':
+                # Config has the Comment tag beneath it, needing
+                # special handling.
+                comment = field.find('./{*}Comment')
+                kwargs['comment'] = comment.text if comment is not None else None
+                continue
 
+            # Map the XML tag name to a kwarg name.
+            kw_name = HOSTED_ZONE_TAG_TO_KWARG_MAP[tag_name]
+            # This will be the key/val pair used to instantiate the
+            # HostedZone instance.
+            kwargs[kw_name] = field.text
 
-    return xml_str
+        yield HostedZone(connection, **kwargs)

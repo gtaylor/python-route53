@@ -1,6 +1,7 @@
-from route53.exceptions import RecordDoesNotExistError
+from lxml import etree
 from route53.transport import RequestsTransport
 from route53 import parsers
+from route53.util import prettyprint_xml
 
 class Route53Connection(object):
     """
@@ -17,9 +18,25 @@ class Route53Connection(object):
 
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
+        self.transport = RequestsTransport(self)
 
     def _send_request(self, path, params, method):
-        return RequestsTransport(self).send_request(path, params, method)
+        """
+        Uses the HTTP transport to query the Route53 API. Runs the response
+        through lxml's parser, before we hand it off for further picking
+        apart by our call-specific parsers.
+
+        :param str path: The RESTful path to tack on to the :py:attr:`endpoint`.
+        :param dict params: A dict of GET or POST params.
+        :param str method: One of 'GET', 'POST', or 'DELETE'.
+        :rtype: lxml.etree._Element
+        :returns: An lxml Element root.
+        """
+
+        response_body = self.transport.send_request(path, params, method)
+        root = etree.fromstring(response_body)
+        print(prettyprint_xml(root))
+        return root
 
     def _do_autopaginating_api_call(self, path, params, method, parser_func):
         """
@@ -27,51 +44,55 @@ class Route53Connection(object):
         hand parsing off to, loop through the record sets in the API call
         until all records have been yielded.
 
-        This is mostly done this way to reduce duplication through the various
-        API methods.
 
         :param str method: The API method on the endpoint.
-        :param dict kwargs: The kwargs from the top-level API method.
+        :param dict params: The kwargs from the top-level API method.
         :param callable parser_func: A callable that is used for parsing the
             output from the API call.
         :rtype: generator
         :returns: Returns a generator that may be returned by the top-level
             API method.
         """
-        # Used to determine whether to fail noisily if no results are returned.
-        has_records = {"has_records": False}
 
+        # We loop indefinitely since we have no idea how many "pages" of
+        # results we're going to have to go through.
         while True:
-            try:
-                root = self._send_request(path, params, method)
-            except RecordDoesNotExistError:
-                if not has_records["has_records"]:
-                    # No records seen yet, this really is empty.
-                    raise
-                    # We've seen some records come through. We must have hit the
-                # end of the result set. Finish up silently.
-                return
+            # An lxml Element node.
+            root = self._send_request(path, params, method)
 
-            # This is used to track whether this go around the call->parse
-            # loop yielded any records.
-            records_returned_by_this_loop = False
-            for record in parser_func(root, has_records):
+            # Individually yield HostedZone instances after parsing/instantiating.
+            for record in parser_func(root, connection=self):
                 yield record
-                # We saw a record, mark our tracker accordingly.
-                records_returned_by_this_loop = True
-                # There is a really fun bug in the Petfinder API with
-            # shelter.getpets where an offset is returned with no pets,
-            # causing an infinite loop.
-            if not records_returned_by_this_loop:
-                return
 
             # This will determine at what offset we start the next query.
-            last_offset = root.find("lastOffset").text
-            kwargs["offset"] = last_offset
+            next_marker = root.find("./{*}NextMarker")
+            if next_marker is None:
+                # If the NextMarker tag is absent, we know we've hit the
+                # last page.
+                break
 
-    def list_hosted_zones(self):
+            # if NextMarker is present, we'll adjust our API request params
+            # and query again for the next page.
+            params["marker"] = next_marker.text
 
+    def list_hosted_zones(self, page_chunks=100):
+        """
+        List all hosted zones associated with this connection's account. Since
+        this method returns a generator, you can pull as many or as few
+        entries as you'd like, without having to query and receive every
+        hosted zone you may have.
 
-        return parsers.list_hosted_zones_parser(
-            self._send_request('hostedzone', {'maxitems': 2}, 'GET')
+        :keyword int page_chunks: This API call is paginated behind-the-scenes
+            by this many HostedZone instances. The default should be fine for
+            just about everybody, aside from those with tons of zones.
+
+        :rtype: generator
+        :returns: A generator of HostedZone instances.
+        """
+
+        return  self._do_autopaginating_api_call(
+            path='hostedzone',
+            params={'maxitems': page_chunks},
+            method='GET',
+            parser_func=parsers.list_hosted_zones_parser,
         )
