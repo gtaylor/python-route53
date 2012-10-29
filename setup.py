@@ -1,34 +1,33 @@
 from setuptools import setup
 
-DESCRIPTION = "A Django email backend for Amazon Simple Email Service, backed by celery."
+DESCRIPTION = "A simple Route53 API for Python 2.7/3.x, powered by requests."
 
 LONG_DESCRIPTION = open('README.rst').read()
 
 CLASSIFIERS = [
-    'Development Status :: 5 - Production/Stable',
+    'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
-    'License :: OSI Approved :: MIT License',
+    'License :: OSI Approved :: BSD License',
     'Operating System :: OS Independent',
-    'Programming Language :: Python',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
     'Topic :: Software Development :: Libraries :: Python Modules',
-    'Framework :: Django',
 ]
 
 setup(
-    name='seacucumber',
-    version='1.5',
+    name='route53',
+    version='0.1',
     packages=[
-        'seacucumber',
-        'seacucumber.management',
-        'seacucumber.management.commands',
+        'route53',
+        'route53.parsers',
     ],
     author='Gregory Taylor',
-    author_email='gtaylor@duointeractive.com',
-    url='https://github.com/duointeractive/sea-cucumber/',
-    license='MIT',
+    author_email='gtaylor@gc-taylor.com',
+    url='https://github.com/gtaylor/python-route53',
+    license='BSD',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     platforms=['any'],
     classifiers=CLASSIFIERS,
-    install_requires=['boto>=2.3.0', 'celery'],
+    install_requires=['requests==0.14.1', 'lxml'],
 )
