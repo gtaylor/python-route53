@@ -19,7 +19,8 @@ setup(
     version='0.1',
     packages=[
         'route53',
-        'route53.parsers',
+        'route53.xml_parsers',
+        'route53.xml_generators',
     ],
     author='Gregory Taylor',
     author_email='gtaylor@gc-taylor.com',

@@ -162,5 +162,5 @@ class RequestsTransport(BaseTransport):
         :returns: The body of the response.
         """
 
-        r = requests.post(self.endpoint + path, params=params, headers=headers)
+        r = requests.post(self.endpoint + path, data=params, headers=headers)
         return r.text

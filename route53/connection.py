@@ -1,6 +1,6 @@
 from lxml import etree
+from route53 import xml_parsers, xml_generators
 from route53.transport import RequestsTransport
-from route53 import parsers
 from route53.util import prettyprint_xml
 
 class Route53Connection(object):
@@ -8,7 +8,7 @@ class Route53Connection(object):
     This class serves as the interface to the AWS Route53 API.
     """
 
-    endpoint = 'https://route53.amazonaws.com/2012-02-29/'
+    endpoint_version = '2012-02-29'
 
     def __init__(self, aws_access_key_id, aws_secret_access_key):
         """
@@ -16,6 +16,8 @@ class Route53Connection(object):
         :param str aws_secret_access_key: An account's secret access key.
         """
 
+        self.endpoint = 'https://route53.amazonaws.com/%s/' % self.endpoint_version
+        self.xml_namespace = 'https://route53.amazonaws.com/doc/%s/' % self.endpoint_version
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
         self.transport = RequestsTransport(self)
@@ -94,5 +96,28 @@ class Route53Connection(object):
             path='hostedzone',
             params={'maxitems': page_chunks},
             method='GET',
-            parser_func=parsers.list_hosted_zones_parser,
+            parser_func=xml_parsers.list_hosted_zones_parser,
+        )
+
+    def create_hosted_zone(self, name, caller_reference=None, comment=None):
+        """
+        Creates a new hosted zone.
+        """
+
+        body = xml_generators.create_hosted_zone_writer(
+            connection=self,
+            name=name,
+            caller_reference=caller_reference,
+            comment=comment
+        )
+
+        root = self._send_request(
+            path='hostedzone',
+            params=body,
+            method='POST',
+        )
+
+        return xml_parsers.created_hosted_zone_parser(
+            root=root,
+            connection=self
         )
