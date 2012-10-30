@@ -1,3 +1,5 @@
+from route53.xml_parsers.common_hosted_zone import parse_change_info
+
 #noinspection PyUnusedLocal
 def delete_hosted_zone_by_id_parser(root, connection):
     """
@@ -14,12 +16,4 @@ def delete_hosted_zone_by_id_parser(root, connection):
 
     e_change_info = root.find('./{*}ChangeInfo')
 
-    id = e_change_info.find('./{*}Id').text
-    status = e_change_info.find('./{*}Status').text
-    submitted_at = e_change_info.find('./{*}SubmittedAt').text
-
-    return {
-        'request_id': id,
-        'request_status': status,
-        'request_submitted_at': submitted_at
-    }
+    return parse_change_info(e_change_info)

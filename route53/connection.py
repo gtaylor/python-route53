@@ -110,8 +110,11 @@ class Route53Connection(object):
             retried without the risk of executing the operation twice. If no
              value is given, we'll generate a Type 4 UUID for you.
         :keyword str comment: An optional comment to attach to the zone.
-        :rtype: HostedZone
-        :returns: The newly created HostedZone instance.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(hosted_zone, change_info)``.
+            The ``hosted_zone`` variable contains a HostedZone instance matching
+            the newly created zone, and ``change_info`` is a dict with some
+            details about the API request.
         """
 
         body = xml_generators.create_hosted_zone_writer(
@@ -158,7 +161,8 @@ class Route53Connection(object):
 
         :param str id: The hosted zone's ID (a short hash string).
         :rtype: dict
-        :returns: A dict with some info regarding the deletion process.
+        :returns: A dict of change info, which contains some details about
+            the request.
         """
 
         root = self._send_request(
