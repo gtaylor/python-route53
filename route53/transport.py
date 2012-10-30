@@ -109,7 +109,7 @@ class BaseTransport(object):
         elif method == 'POST':
             return self._send_post_request(path, data, headers)
         elif method == 'DELETE':
-            return self._send_post_request(path, headers)
+            return self._send_delete_request(path, headers)
         else:
             raise Route53Error("Invalid request method: %s" % method)
 

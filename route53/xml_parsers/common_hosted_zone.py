@@ -34,6 +34,7 @@ def parse_hosted_zone(zone, connection):
     for field in zone:
         # Cheesy way to strip off the namespace.
         tag_name = field.tag.split('}')[1]
+        field_text = field.text
 
         if tag_name == 'Config':
             # Config has the Comment tag beneath it, needing
@@ -41,12 +42,15 @@ def parse_hosted_zone(zone, connection):
             comment = field.find('./{*}Comment')
             kwargs['comment'] = comment.text if comment is not None else None
             continue
+        elif tag_name == 'Id':
+            # This comes back with a path prepended. Yank that sillyness.
+            field_text = field_text.strip('/hostedzone/')
 
         # Map the XML tag name to a kwarg name.
         kw_name = HOSTED_ZONE_TAG_TO_KWARG_MAP[tag_name]
         # This will be the key/val pair used to instantiate the
         # HostedZone instance.
-        kwargs[kw_name] = field.text
+        kwargs[kw_name] = field_text
 
     return HostedZone(connection, **kwargs)
 

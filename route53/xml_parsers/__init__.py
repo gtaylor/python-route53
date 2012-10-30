@@ -1,3 +1,4 @@
 from .list_hosted_zones import list_hosted_zones_parser
 from .created_hosted_zone import created_hosted_zone_parser
 from .get_hosted_zone_by_id import get_hosted_zone_by_id_parser
+from .delete_hosted_zone_by_id import delete_hosted_zone_by_id_parser

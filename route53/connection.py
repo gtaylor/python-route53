@@ -151,3 +151,23 @@ class Route53Connection(object):
             root=root,
             connection=self,
         )
+
+    def delete_hosted_zone_by_id(self, id):
+        """
+        Deletes a hosted zone, by Hosted Zone ID (not name).
+
+        :param str id: The hosted zone's ID (a short hash string).
+        :rtype: dict
+        :returns: A dict with some info regarding the deletion process.
+        """
+
+        root = self._send_request(
+            path='hostedzone/%s' % id,
+            data={},
+            method='DELETE',
+        )
+
+        return xml_parsers.delete_hosted_zone_by_id_parser(
+            root=root,
+            connection=self,
+        )
