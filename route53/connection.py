@@ -22,20 +22,21 @@ class Route53Connection(object):
         self.aws_secret_access_key = aws_secret_access_key
         self.transport = RequestsTransport(self)
 
-    def _send_request(self, path, params, method):
+    def _send_request(self, path, data, method):
         """
         Uses the HTTP transport to query the Route53 API. Runs the response
         through lxml's parser, before we hand it off for further picking
         apart by our call-specific parsers.
 
         :param str path: The RESTful path to tack on to the :py:attr:`endpoint`.
-        :param dict params: A dict of GET or POST params.
+        :param data: The params to send along with the request.
+        :type data: Either a dict or bytes, depending on the request type.
         :param str method: One of 'GET', 'POST', or 'DELETE'.
         :rtype: lxml.etree._Element
         :returns: An lxml Element root.
         """
 
-        response_body = self.transport.send_request(path, params, method)
+        response_body = self.transport.send_request(path, data, method)
         root = etree.fromstring(response_body)
         print(prettyprint_xml(root))
         return root
@@ -122,7 +123,7 @@ class Route53Connection(object):
 
         root = self._send_request(
             path='hostedzone',
-            params=body,
+            data=body,
             method='POST',
         )
 
@@ -142,7 +143,7 @@ class Route53Connection(object):
 
         root = self._send_request(
             path='hostedzone/%s' % id,
-            params={},
+            data={},
             method='GET',
         )
 

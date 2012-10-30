@@ -87,14 +87,15 @@ class BaseTransport(object):
             'Host': 'route53.amazonaws.com',
         }
 
-    def send_request(self, path, params, method):
+    def send_request(self, path, data, method):
         """
         All outbound requests go through this method. It defers to the
         transport's various HTTP method-specific methods.
 
         :param str path: The path to tack on to the endpoint URL for
             the query.
-        :param dict params: The params to send along with the request.
+        :param data: The params to send along with the request.
+        :type data: Either a dict or bytes, depending on the request type.
         :param str method: One of 'GET', 'POST', or 'DELETE'.
 
         :rtype: str
@@ -104,9 +105,11 @@ class BaseTransport(object):
         headers = self.get_request_headers()
 
         if method == 'GET':
-            return self._send_get_request(path, params, headers)
+            return self._send_get_request(path, data, headers)
         elif method == 'POST':
-            return self._send_post_request(path, params, headers)
+            return self._send_post_request(path, data, headers)
+        elif method == 'DELETE':
+            return self._send_post_request(path, headers)
         else:
             raise Route53Error("Invalid request method: %s" % method)
 
@@ -116,18 +119,42 @@ class BaseTransport(object):
 
         Sends the GET request to the Route53 endpoint.
 
+        :param str path: The path to tack on to the endpoint URL for
+            the query.
+        :param dict params: Key/value pairs to send.
+        :param dict headers: A dict of headers to send with the request.
         :rtype: str
         :returns: The body of the response.
         """
 
         raise NotImplementedError
 
-    def _send_post_request(self, path, params, headers):
+    def _send_post_request(self, path, data, headers):
         """
         Transport sub-classes need to override this.
 
         Sends the POST request to the Route53 endpoint.
 
+        :param str path: The path to tack on to the endpoint URL for
+            the query.
+        :param data: Either a dict, or bytes.
+        :type data: dict or bytes
+        :param dict headers: A dict of headers to send with the request.
+        :rtype: str
+        :returns: The body of the response.
+        """
+
+        raise NotImplementedError
+
+    def _send_delete_request(self, path, headers):
+        """
+        Transport sub-classes need to override this.
+
+        Sends the DELETE request to the Route53 endpoint.
+
+        :param str path: The path to tack on to the endpoint URL for
+            the query.
+        :param dict headers: A dict of headers to send with the request.
         :rtype: str
         :returns: The body of the response.
         """
@@ -147,6 +174,10 @@ class RequestsTransport(BaseTransport):
         """
         Sends the GET request to the Route53 endpoint.
 
+        :param str path: The path to tack on to the endpoint URL for
+            the query.
+        :param dict params: Key/value pairs to send.
+        :param dict headers: A dict of headers to send with the request.
         :rtype: str
         :returns: The body of the response.
         """
@@ -154,13 +185,32 @@ class RequestsTransport(BaseTransport):
         r = requests.get(self.endpoint + path, params=params, headers=headers)
         return r.text
 
-    def _send_post_request(self, path, params, headers):
+    def _send_post_request(self, path, data, headers):
         """
         Sends the POST request to the Route53 endpoint.
 
+        :param str path: The path to tack on to the endpoint URL for
+            the query.
+        :param data: Either a dict, or bytes.
+        :type data: dict or bytes
+        :param dict headers: A dict of headers to send with the request.
         :rtype: str
         :returns: The body of the response.
         """
 
-        r = requests.post(self.endpoint + path, data=params, headers=headers)
+        r = requests.post(self.endpoint + path, data=data, headers=headers)
+        return r.text
+
+    def _send_delete_request(self, path, headers):
+        """
+        Sends the DELETE request to the Route53 endpoint.
+
+        :param str path: The path to tack on to the endpoint URL for
+            the query.
+        :param dict headers: A dict of headers to send with the request.
+        :rtype: str
+        :returns: The body of the response.
+        """
+
+        r = requests.delete(self.endpoint + path, headers=headers)
         return r.text

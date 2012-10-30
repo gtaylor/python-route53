@@ -27,6 +27,8 @@ class HostedZone(object):
         self.caller_reference = caller_reference
         self.resource_record_set_count = int(resource_record_set_count)
         self.comment = comment
+
+        # Don't access this directly, we use it for lazy loading.
         self._nameservers = []
 
     @property
@@ -35,4 +37,4 @@ class HostedZone(object):
         return self._nameservers
 
     def __str__(self):
-        return '<HostedZone: %s>' % self.name
+        return '<HostedZone: %s -- %s>' % (self.name, self.id)
