@@ -5,6 +5,9 @@ class HostedZone(object):
     Like a traditional DNS zone file, a hosted zone represents a collection of
     resource record sets that are managed together under a single domain name.
     Each hosted zone has its own metadata and configuration information.
+
+    .. warning:: Do not instantiate this directly yourself. Go through
+        one of the methods on:py:class:``route53.connection.Route53Connection`.
     """
 
     def __init__(self, connection, id, name, caller_reference,
@@ -33,7 +36,21 @@ class HostedZone(object):
 
     @property
     def nameservers(self):
-        # TODO: Lazy load these if they aren't set.
+        """
+        If this HostedZone was instantiated by ListHostedZones, the nameservers
+        attribute didn't get populated. If the user requests it, we'll
+        lazy load it in.
+
+        :rtype: list
+        :returns: A list of nameserver strings for this hosted zone.
+        """
+
+        if not self._nameservers:
+            # We'll just snatch the nameserver values from a fresh copy
+            # via GetHostedZone.
+            hosted_zone = self.connection.get_hosted_zone_by_id(self.id)
+            self._nameservers = hosted_zone._nameservers
+
         return self._nameservers
 
     def __str__(self):
