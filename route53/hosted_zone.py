@@ -27,6 +27,12 @@ class HostedZone(object):
         self.caller_reference = caller_reference
         self.resource_record_set_count = int(resource_record_set_count)
         self.comment = comment
+        self._nameservers = []
+
+    @property
+    def nameservers(self):
+        # TODO: Lazy load these if they aren't set.
+        return self._nameservers
 
     def __str__(self):
         return '<HostedZone: %s>' % self.name

@@ -12,7 +12,7 @@ HOSTED_ZONE_TAG_TO_KWARG_MAP = {
     'Name': 'name',
     'CallerReference': 'caller_reference',
     'ResourceRecordSetCount': 'resource_record_set_count',
-    }
+}
 
 def parse_hosted_zone(zone, connection):
     """
@@ -49,3 +49,20 @@ def parse_hosted_zone(zone, connection):
         kwargs[kw_name] = field.text
 
     return HostedZone(connection, **kwargs)
+
+def parse_delegation_set(zone, e_delegation_set):
+    """
+    Parses a DelegationSet tag. These often accompany HostedZone tags in
+    responses like CreateHostedZone and GetHostedZone.
+
+    :param HostedZone zone: An existing HostedZone instance to populate.
+    :param lxml.etree._Element e_delegation_set: A DelegationSet element.
+    """
+
+    e_nameservers = e_delegation_set.find('./{*}NameServers')
+
+    nameservers = []
+    for e_nameserver in e_nameservers:
+        nameservers.append(e_nameserver.text)
+
+    zone._nameservers = nameservers

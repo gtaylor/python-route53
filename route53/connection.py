@@ -102,6 +102,15 @@ class Route53Connection(object):
     def create_hosted_zone(self, name, caller_reference=None, comment=None):
         """
         Creates a new hosted zone.
+
+        :param str name: The name of the hosted zone to create.
+        :keyword str caller_reference: A unique string that identifies the
+            request and that allows failed create_hosted_zone requests to be
+            retried without the risk of executing the operation twice. If no
+             value is given, we'll generate a Type 4 UUID for you.
+        :keyword str comment: An optional comment to attach to the zone.
+        :rtype: HostedZone
+        :returns: The newly created HostedZone instance.
         """
 
         body = xml_generators.create_hosted_zone_writer(
@@ -120,4 +129,24 @@ class Route53Connection(object):
         return xml_parsers.created_hosted_zone_parser(
             root=root,
             connection=self
+        )
+
+    def get_hosted_zone_by_id(self, id):
+        """
+        Retrieves a hosted zone, by Hosted Zone ID (not name).
+
+        :param str id: The hosted zone's ID (a short hash string).
+        :rtype: HostedZone
+        :returns: The requested hosted zone.
+        """
+
+        root = self._send_request(
+            path='hostedzone/%s' % id,
+            params={},
+            method='GET',
+        )
+
+        return xml_parsers.get_hosted_zone_by_id_parser(
+            root=root,
+            connection=self,
         )
