@@ -34,12 +34,16 @@ class HostedZone(object):
         # Don't access this directly, we use it for lazy loading.
         self._nameservers = []
 
+    def __str__(self):
+        return '<HostedZone: %s -- %s>' % (self.name, self.id)
+
     @property
     def nameservers(self):
         """
         If this HostedZone was instantiated by ListHostedZones, the nameservers
         attribute didn't get populated. If the user requests it, we'll
-        lazy load it in.
+        lazy load by querying it in after the fact. It's safe to cache like
+        this since  these nameserver values won't change.
 
         :rtype: list
         :returns: A list of nameserver strings for this hosted zone.
@@ -53,5 +57,18 @@ class HostedZone(object):
 
         return self._nameservers
 
-    def __str__(self):
-        return '<HostedZone: %s -- %s>' % (self.name, self.id)
+    @property
+    def record_sets(self):
+        """
+        Queries for the Resource Record Sets that are under this HostedZone.
+
+        .. warning:: This result set can get pretty large if you have a ton
+            of records.
+
+        :rtype: generator
+        :returns: A generator of ResourceRecordSet sub-classes.
+        """
+
+        for rrset in self.connection.list_resource_record_sets_by_zone_id(self.id):
+            yield rrset
+
