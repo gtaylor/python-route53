@@ -46,10 +46,20 @@ class ResourceRecordSet(object):
 
 class AResourceRecordSet(ResourceRecordSet):
     """
-    Specific A record class.
+    Specific A record class. There are two kinds of A records:
+
+    * Regular A records.
+    * Alias A records. These point at an ELB instance instead of an IP.
     """
 
     def __init__(self, alias_hosted_zone_id=None, alias_dns_name=None, *args, **kwargs):
+        """
+        :keyword str alias_hosted_zone_id: Alias A records have this specified.
+            It appears to be the hosted zone ID for the ELB the Alias points at.
+        :keyword str alias_dns_name: Alias A records have this specified. It is
+            the DNS name for the ELB that the Alias points to.
+        """
+
         self.alias_hosted_zone_id = alias_hosted_zone_id
         self.alias_dns_name = alias_dns_name
 
