@@ -43,7 +43,7 @@ class Route53Connection(object):
 
     def _do_autopaginating_api_call(self, path, params, method, parser_func,
         next_marker_xpath, next_marker_param_name,
-        next_type_xpath=None):
+        next_type_xpath=None, parser_kwargs=None):
         """
         Given an API method, the arguments passed to it, and a function to
         hand parsing off to, loop through the record sets in the API call
@@ -62,10 +62,15 @@ class Route53Connection(object):
         :keyword str next_type_xpath: For the
             py:meth:`list_resource_record_sets_by_zone_id` method, there's
             an additional paginator token. Specifying this XPath looks for it.
+        :keyword dict parser_kwargs: Optional dict of additional kwargs to pass
+            on to the parser function.
         :rtype: generator
         :returns: Returns a generator that may be returned by the top-level
             API method.
         """
+
+        if not parser_kwargs:
+            parser_kwargs = {}
 
         # We loop indefinitely since we have no idea how many "pages" of
         # results we're going to have to go through.
@@ -74,7 +79,7 @@ class Route53Connection(object):
             root = self._send_request(path, params, method)
 
             # Individually yield HostedZone instances after parsing/instantiating.
-            for record in parser_func(root, connection=self):
+            for record in parser_func(root, connection=self, **parser_kwargs):
                 yield record
 
             # This will determine at what offset we start the next query.
@@ -230,6 +235,7 @@ class Route53Connection(object):
             params=params,
             method='GET',
             parser_func=xml_parsers.list_resource_record_sets_by_zone_id_parser,
+            parser_kwargs={'zone_id': id},
             next_marker_xpath="./{*}NextRecordName",
             next_marker_param_name="name",
             next_type_xpath="./{*}NextRecordType"

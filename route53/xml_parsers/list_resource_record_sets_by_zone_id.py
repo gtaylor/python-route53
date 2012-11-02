@@ -55,7 +55,7 @@ def parse_rrset_record_values(e_resource_records):
 
     return records
 
-def parse_rrset(e_rrset, connection):
+def parse_rrset(e_rrset, connection, zone_id):
     """
     This a parser that allows the passing of any valid ResourceRecordSet
     tag. It will spit out the appropriate ResourceRecordSet object for the tag.
@@ -64,12 +64,16 @@ def parse_rrset(e_rrset, connection):
         response from the API.
     :param Route53Connection connection: The connection instance used to
         query the API.
+    :param str zone_id: The zone ID of the HostedZone these rrsets belong to.
     :rtype: ResourceRecordSet
     :returns: An instantiated ResourceRecordSet object.
     """
 
     # This dict will be used to instantiate a ResourceRecordSet instance to yield.
-    kwargs = {'connection': connection}
+    kwargs = {
+        'connection': connection,
+        'zone_id': zone_id,
+    }
     rrset_type = None
 
     for e_field in e_rrset:
@@ -109,7 +113,7 @@ def parse_rrset(e_rrset, connection):
     RRSetSubclass = RRSET_TYPE_TO_RSET_SUBCLASS_MAP[rrset_type]
     return RRSetSubclass(**kwargs)
 
-def list_resource_record_sets_by_zone_id_parser(e_root, connection):
+def list_resource_record_sets_by_zone_id_parser(e_root, connection, zone_id):
     """
     Parses the API responses for the
     :py:meth:`route53.connection.Route53Connection.list_resource_record_sets_by_zone_id`
@@ -119,6 +123,7 @@ def list_resource_record_sets_by_zone_id_parser(e_root, connection):
         response from the API.
     :param Route53Connection connection: The connection instance used to
         query the API.
+    :param str zone_id: The zone ID of the HostedZone these rrsets belong to.
     :rtype: ResourceRecordSet
     :returns: A generator of fully formed ResourceRecordSet instances.
     """
@@ -129,4 +134,4 @@ def list_resource_record_sets_by_zone_id_parser(e_root, connection):
     e_rrsets = e_root.find('./{*}ResourceRecordSets')
 
     for e_rrset in e_rrsets:
-        yield parse_rrset(e_rrset, connection)
+        yield parse_rrset(e_rrset, connection, zone_id)
