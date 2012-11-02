@@ -41,7 +41,9 @@ class Route53Connection(object):
         print(prettyprint_xml(root))
         return root
 
-    def _do_autopaginating_api_call(self, path, params, method, parser_func):
+    def _do_autopaginating_api_call(self, path, params, method, parser_func,
+        next_marker_xpath, next_marker_param_name,
+        next_type_xpath=None):
         """
         Given an API method, the arguments passed to it, and a function to
         hand parsing off to, loop through the record sets in the API call
@@ -52,6 +54,14 @@ class Route53Connection(object):
         :param dict params: The kwargs from the top-level API method.
         :param callable parser_func: A callable that is used for parsing the
             output from the API call.
+        :param str next_marker_param_name: The XPath to the marker tag that
+            will determine whether we continue paginating.
+        :param str next_marker_param_name: The parameter name to manipulate
+            in the request data to bring up the next page on the next
+            request loop.
+        :keyword str next_type_xpath: For the
+            py:meth:`list_resource_record_sets_by_zone_id` method, there's
+            an additional paginator token. Specifying this XPath looks for it.
         :rtype: generator
         :returns: Returns a generator that may be returned by the top-level
             API method.
@@ -68,7 +78,7 @@ class Route53Connection(object):
                 yield record
 
             # This will determine at what offset we start the next query.
-            next_marker = root.find("./{*}NextMarker")
+            next_marker = root.find(next_marker_xpath)
             if next_marker is None:
                 # If the NextMarker tag is absent, we know we've hit the
                 # last page.
@@ -76,7 +86,15 @@ class Route53Connection(object):
 
             # if NextMarker is present, we'll adjust our API request params
             # and query again for the next page.
-            params["marker"] = next_marker.text
+            params[next_marker_param_name] = next_marker.text
+
+            if next_type_xpath:
+                # This is a list_resource_record_sets_by_zone_id call. Look
+                # for the given tag via XPath and adjust our type arg for
+                # the next request. Without specifying this, we loop
+                # infinitely.
+                next_type = root.find(next_type_xpath)
+                params['type'] = next_type.text
 
     def list_hosted_zones(self, page_chunks=100):
         """
@@ -98,6 +116,8 @@ class Route53Connection(object):
             params={'maxitems': page_chunks},
             method='GET',
             parser_func=xml_parsers.list_hosted_zones_parser,
+            next_marker_xpath="./{*}NextMarker",
+            next_marker_param_name="marker",
         )
 
     def create_hosted_zone(self, name, caller_reference=None, comment=None):
@@ -174,4 +194,43 @@ class Route53Connection(object):
         return xml_parsers.delete_hosted_zone_by_id_parser(
             root=root,
             connection=self,
+        )
+
+    def list_resource_record_sets_by_zone_id(self, id, rrset_type=None,
+                                             identifier=None, name=None,
+                                             page_chunks=100):
+        """
+        Lists resource record sets by Zone ID.
+
+        :param str id: The ID of the zone whose record sets we're listing.
+        :keyword str rrset_type: The type of resource record set to begin the
+            record listing from.
+        :keyword str identifier: Weighted and latency resource record sets
+            only: If results were truncated for a given DNS name and type,
+            the value of SetIdentifier for the next resource record set
+            that has the current DNS name and type.
+        :keyword str name: Not really sure what this does.
+        :keyword int page_chunks: This API call is paginated behind-the-scenes
+            by this many ResourceRecordSet instances. The default should be
+            fine for just about everybody, aside from those with tons of RRS.
+
+        :rtype: generator
+        :returns: A generator of ResourceRecordSet instances.
+        """
+
+        params = {
+            'name': name,
+            'type': rrset_type,
+            'identifier': identifier,
+            'maxitems': page_chunks,
+        }
+
+        return  self._do_autopaginating_api_call(
+            path='hostedzone/%s/rrset' % id,
+            params=params,
+            method='GET',
+            parser_func=xml_parsers.list_resource_record_sets_by_zone_id_parser,
+            next_marker_xpath="./{*}NextRecordName",
+            next_marker_param_name="name",
+            next_type_xpath="./{*}NextRecordType"
         )

@@ -16,12 +16,12 @@ HOSTED_ZONE_TAG_TO_KWARG_MAP = {
     'ResourceRecordSetCount': 'resource_record_set_count',
 }
 
-def parse_hosted_zone(zone, connection):
+def parse_hosted_zone(e_zone, connection):
     """
     This a common parser that allows the passing of any valid HostedZone
     tag. It will spit out the appropriate HostedZone object for the tag.
 
-    :param lxml.etree._Element zone: The root node of the etree parsed
+    :param lxml.etree._Element e_zone: The root node of the etree parsed
         response from the API.
     :param Route53Connection connection: The connection instance used to
         query the API.
@@ -33,16 +33,16 @@ def parse_hosted_zone(zone, connection):
     kwargs = {}
     # Within HostedZone tags are a number of sub-tags that include info
     # about the instance.
-    for field in zone:
+    for e_field in e_zone:
         # Cheesy way to strip off the namespace.
-        tag_name = field.tag.split('}')[1]
-        field_text = field.text
+        tag_name = e_field.tag.split('}')[1]
+        field_text = e_field.text
 
         if tag_name == 'Config':
             # Config has the Comment tag beneath it, needing
             # special handling.
-            comment = field.find('./{*}Comment')
-            kwargs['comment'] = comment.text if comment is not None else None
+            e_comment = e_field.find('./{*}Comment')
+            kwargs['comment'] = e_comment.text if e_comment is not None else None
             continue
         elif tag_name == 'Id':
             # This comes back with a path prepended. Yank that sillyness.
