@@ -72,3 +72,14 @@ class HostedZone(object):
         for rrset in self.connection.list_resource_record_sets_by_zone_id(self.id):
             yield rrset
 
+
+    def delete(self):
+        """
+        Deletes this hosted zone.
+
+        :rtype: dict
+        :returns: A dict of change info, which contains some details about
+            the request.
+        """
+
+        return self.connection.delete_hosted_zone_by_id(self.id)
