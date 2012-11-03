@@ -1,4 +1,4 @@
-from route53.xml_parsers.common_hosted_zone import parse_change_info
+from route53.xml_parsers.common_change_info import parse_change_info
 
 #noinspection PyUnusedLocal
 def delete_hosted_zone_by_id_parser(root, connection):

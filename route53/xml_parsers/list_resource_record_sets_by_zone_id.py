@@ -4,7 +4,6 @@ from route53.resource_record_set import AResourceRecordSet, AAAAResourceRecordSe
 # Maps ResourceRecordSet subtag names to kwargs in RRSet subclasses.
 RRSET_TAG_TO_KWARG_MAP = {
     'Name': 'name',
-    'Type': 'rrset_type',
     'TTL': 'ttl',
 }
 
@@ -85,6 +84,7 @@ def parse_rrset(e_rrset, connection, zone_id):
             # Need to store this to determine which ResourceRecordSet
             # subclass to instantiate.
             rrset_type = field_text
+            continue
         elif tag_name == 'AliasTarget':
             # A records have some special field values we need.
             alias_hosted_zone_id, alias_dns_name = parse_rrset_alias(e_field)

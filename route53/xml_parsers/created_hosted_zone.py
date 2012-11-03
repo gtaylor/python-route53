@@ -1,4 +1,5 @@
-from route53.xml_parsers.common_hosted_zone import parse_hosted_zone, parse_delegation_set, parse_change_info
+from route53.xml_parsers.common_change_info import parse_change_info
+from route53.xml_parsers.common_hosted_zone import parse_hosted_zone, parse_delegation_set
 
 def created_hosted_zone_parser(root, connection):
     """

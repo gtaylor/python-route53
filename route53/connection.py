@@ -2,6 +2,7 @@ from lxml import etree
 from route53 import xml_parsers, xml_generators
 from route53.transport import RequestsTransport
 from route53.util import prettyprint_xml
+from route53.xml_parsers.common_change_info import parse_change_info
 
 class Route53Connection(object):
     """
@@ -240,3 +241,33 @@ class Route53Connection(object):
             next_marker_param_name="name",
             next_type_xpath="./{*}NextRecordType"
         )
+
+    def _change_resource_record_sets(self, change_set, comment=None):
+        """
+        Given a ChangeSet, POST it to the Route53 API.
+
+        .. note:: You probably shouldn't be using this method directly,
+            as there are convenience methods on the ResourceRecordSet
+            sub-classes.
+
+        :param change_set.ChangeSet change_set: The ChangeSet object to create
+            the XML doc from.
+        :keyword str comment: An optional comment to go along with the request.
+        """
+
+        body = xml_generators.change_resource_record_set_writer(
+            connection=self,
+            change_set=change_set,
+            comment=comment
+        )
+
+        root = self._send_request(
+            path='hostedzone/%s/rrset' % change_set.hosted_zone_id,
+            data=body,
+            method='POST',
+        )
+
+        print(prettyprint_xml(root))
+
+        e_change_info = root.find('./{*}ChangeInfo')
+        return parse_change_info(e_change_info)

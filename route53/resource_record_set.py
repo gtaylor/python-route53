@@ -1,3 +1,4 @@
+from route53.change_set import ChangeSet
 
 class ResourceRecordSet(object):
     """
@@ -8,7 +9,10 @@ class ResourceRecordSet(object):
         one of the methods on:py:class:``route53.connection.Route53Connection`.
     """
 
-    def __init__(self, connection, zone_id, name, rrset_type, ttl, records):
+    # Override this in your sub-class.
+    rrset_type = None
+
+    def __init__(self, connection, zone_id, name, ttl, records):
         """
         :param Route53Connection connection: The connection instance that
             was used to query the Route53 API, leading to this object's
@@ -25,9 +29,18 @@ class ResourceRecordSet(object):
         self.connection = connection
         self.zone_id = zone_id
         self.name = name
-        self.rrset_type = rrset_type
         self.ttl = int(ttl) if ttl else None
         self.records = records
+
+        # Keep track of the initial values for this record set. We use this
+        # to detect changes that need saving.
+        self._initial_vals = dict(
+            connection=connection,
+            zone_id=zone_id,
+            name=name,
+            ttl=ttl,
+            records=records,
+        )
 
     def __str__(self):
         return '<%s: %s>' % (self.__class__.__name__, self.name)
@@ -43,6 +56,53 @@ class ResourceRecordSet(object):
 
         return self.connection.get_hosted_zone_by_id(self.zone_id)
 
+    def is_modified(self):
+        """
+        Determines whether this record set has been modified since retrieval.
+
+        :rtype: bool
+        :returns: ``True` if the record set has been modified,
+            and ``False`` if not.
+        """
+
+        for key, val in self._initial_vals:
+            if getattr(self, key) != val:
+                # One of the initial values doesn't match, we know
+                # this object has been touched.
+                return True
+
+        return False
+
+    def delete(self):
+        """
+        Deletes this record set.
+        """
+
+        cset = ChangeSet(connection=self.connection, hosted_zone_id=self.zone_id)
+        cset.add_change('DELETE', self)
+
+        return self.connection._change_resource_record_sets(cset)
+
+    def save(self):
+        """
+        Saves any changes to this record set.
+        """
+
+        # TODO: Copy changes to self._initial_vals.
+        pass
+
+    def is_alias_record_set(self):
+        """
+        Checks whether this is an A record in Alias mode.
+
+        :rtype: bool
+        :returns: ``True`` if this is an A record in Alias mode, and
+            ``False`` otherwise.
+        """
+
+        # AResourceRecordSet overrides this. Everyone else is False.
+        return False
+
 
 class AResourceRecordSet(ResourceRecordSet):
     """
@@ -52,6 +112,8 @@ class AResourceRecordSet(ResourceRecordSet):
     * Alias A records. These point at an ELB instance instead of an IP.
     """
 
+    rrset_type = 'A'
+
     def __init__(self, alias_hosted_zone_id=None, alias_dns_name=None, *args, **kwargs):
         """
         :keyword str alias_hosted_zone_id: Alias A records have this specified.
@@ -60,10 +122,30 @@ class AResourceRecordSet(ResourceRecordSet):
             the DNS name for the ELB that the Alias points to.
         """
 
+        super(AResourceRecordSet, self).__init__(*args, **kwargs)
+
         self.alias_hosted_zone_id = alias_hosted_zone_id
         self.alias_dns_name = alias_dns_name
 
-        super(AResourceRecordSet, self).__init__(*args, **kwargs)
+        # Keep track of the initial values for this record set. We use this
+        # to detect changes that need saving.
+        self._initial_vals.update(
+            dict(
+                alias_hosted_zone_id=alias_hosted_zone_id,
+                alias_dns_name=alias_dns_name,
+            )
+        )
+
+    def is_alias_record_set(self):
+        """
+        Checks whether this is an A record in Alias mode.
+
+        :rtype: bool
+        :returns: ``True`` if this is an A record in Alias mode, and
+            ``False`` otherwise.
+        """
+
+        return self.alias_hosted_zone_id or self.alias_dns_name
 
 
 class AAAAResourceRecordSet(ResourceRecordSet):
@@ -71,7 +153,7 @@ class AAAAResourceRecordSet(ResourceRecordSet):
     Specific AAAA record class.
     """
 
-    pass
+    rrset_type = 'AAAA'
 
 
 class CNAMEResourceRecordSet(ResourceRecordSet):
@@ -79,7 +161,7 @@ class CNAMEResourceRecordSet(ResourceRecordSet):
     Specific CNAME record class.
     """
 
-    pass
+    rrset_type = 'CNAME'
 
 
 class MXResourceRecordSet(ResourceRecordSet):
@@ -87,7 +169,7 @@ class MXResourceRecordSet(ResourceRecordSet):
     Specific MX record class.
     """
 
-    pass
+    rrset_type = 'MX'
 
 
 class NSResourceRecordSet(ResourceRecordSet):
@@ -95,7 +177,7 @@ class NSResourceRecordSet(ResourceRecordSet):
     Specific NS record class.
     """
 
-    pass
+    rrset_type = 'NS'
 
 
 class PTRResourceRecordSet(ResourceRecordSet):
@@ -103,7 +185,7 @@ class PTRResourceRecordSet(ResourceRecordSet):
     Specific PTR record class.
     """
 
-    pass
+    rrset_type = 'PTR'
 
 
 class SOAResourceRecordSet(ResourceRecordSet):
@@ -111,7 +193,7 @@ class SOAResourceRecordSet(ResourceRecordSet):
     Specific SOA record class.
     """
 
-    pass
+    rrset_type = 'SOA'
 
 
 class SPFResourceRecordSet(ResourceRecordSet):
@@ -119,7 +201,7 @@ class SPFResourceRecordSet(ResourceRecordSet):
     Specific SPF record class.
     """
 
-    pass
+    rrset_type = 'SPF'
 
 
 class SRVResourceRecordSet(ResourceRecordSet):
@@ -127,7 +209,7 @@ class SRVResourceRecordSet(ResourceRecordSet):
     Specific SRV record class.
     """
 
-    pass
+    rrset_type = 'SRV'
 
 
 class TXTResourceRecordSet(ResourceRecordSet):
@@ -135,4 +217,4 @@ class TXTResourceRecordSet(ResourceRecordSet):
     Specific TXT record class.
     """
 
-    pass
+    rrset_type = 'TXT'

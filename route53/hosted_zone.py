@@ -1,3 +1,5 @@
+from route53.change_set import ChangeSet
+from route53.resource_record_set import AResourceRecordSet
 
 class HostedZone(object):
     """
@@ -72,7 +74,6 @@ class HostedZone(object):
         for rrset in self.connection.list_resource_record_sets_by_zone_id(self.id):
             yield rrset
 
-
     def delete(self):
         """
         Deletes this hosted zone.
@@ -83,3 +84,29 @@ class HostedZone(object):
         """
 
         return self.connection.delete_hosted_zone_by_id(self.id)
+
+    def add_a_record(self, name, values, ttl=60):
+        """
+        Adds an A record to the hosted zone.
+
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :rtype: AResourceRecordSet
+        :returns: The newly created AResourceRecordSet instance.
+        """
+
+        rrset = AResourceRecordSet(
+            connection=self.connection,
+            zone_id=self.id,
+            name=name,
+            ttl=ttl,
+            records=values,
+        )
+
+        cset = ChangeSet(connection=self.connection, hosted_zone_id=self.id)
+        cset.add_change('CREATE', rrset)
+
+        change_info = self.connection._change_resource_record_sets(cset)
+
+        return rrset, change_info
