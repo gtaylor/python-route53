@@ -12,7 +12,8 @@ class ResourceRecordSet(object):
     # Override this in your sub-class.
     rrset_type = None
 
-    def __init__(self, connection, zone_id, name, ttl, records):
+    def __init__(self, connection, zone_id, name, ttl, records, weight, region,
+                 set_identifier):
         """
         :param Route53Connection connection: The connection instance that
             was used to query the Route53 API, leading to this object's
@@ -24,6 +25,17 @@ class ResourceRecordSet(object):
             be None in that case.
         :param list records: A list of resource record strings. For some
             types (A entries that are Aliases), this is an empty list.
+        :param int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :param str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :param str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
         """
 
         self.connection = connection
@@ -31,6 +43,9 @@ class ResourceRecordSet(object):
         self.name = name
         self.ttl = int(ttl) if ttl else None
         self.records = records
+        self.region = region
+        self.weight = weight
+        self.set_identifier = set_identifier
 
         # Keep track of the initial values for this record set. We use this
         # to detect changes that need saving.
@@ -40,6 +55,9 @@ class ResourceRecordSet(object):
             name=name,
             ttl=ttl,
             records=records,
+            region=region,
+            weight=weight,
+            set_identifier=set_identifier,
         )
 
     def __str__(self):
@@ -128,11 +146,11 @@ class AResourceRecordSet(ResourceRecordSet):
 
     rrset_type = 'A'
 
-    def __init__(self, alias_hosted_zone_id=None, alias_dns_name=None, *args, **kwargs):
+    def __init__(self, alias_hosted_zone_id, alias_dns_name, *args, **kwargs):
         """
-        :keyword str alias_hosted_zone_id: Alias A records have this specified.
+        :param str alias_hosted_zone_id: Alias A records have this specified.
             It appears to be the hosted zone ID for the ELB the Alias points at.
-        :keyword str alias_dns_name: Alias A records have this specified. It is
+        :param str alias_dns_name: Alias A records have this specified. It is
             the DNS name for the ELB that the Alias points to.
         """
 

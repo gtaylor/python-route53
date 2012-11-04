@@ -127,13 +127,30 @@ class HostedZone(object):
         if self._is_deleted:
             raise AlreadyDeletedError("Can't manipulate a deleted zone.")
 
-    def add_a_record(self, name, values, ttl=60):
+    def add_a_record(self, name, values, ttl=60, weight=None, region=None,
+                     set_identifier=None, alias_hosted_zone_id=None,
+                     alias_dns_name=None):
         """
         Adds an A record to the hosted zone.
 
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :keyword str alias_hosted_zone_id: Alias A records have this specified.
+            It appears to be the hosted zone ID for the ELB the Alias points at.
+        :keyword str alias_dns_name: Alias A records have this specified. It is
+            the DNS name for the ELB that the Alias points to.
         :rtype: tuple
         :returns: A tuple in the form of ``(rrset, change_info)``, where
             ``rrset`` is the newly created AResourceRecordSet instance.
@@ -142,11 +159,16 @@ class HostedZone(object):
         self._halt_if_already_deleted()
 
         rrset = AResourceRecordSet(
+            alias_hosted_zone_id=alias_hosted_zone_id,
+            alias_dns_name=alias_dns_name,
             connection=self.connection,
             zone_id=self.id,
             name=name,
             ttl=ttl,
             records=values,
+            weight=weight,
+            region=region,
+            set_identifier=set_identifier,
         )
 
         cset = ChangeSet(connection=self.connection, hosted_zone_id=self.id)

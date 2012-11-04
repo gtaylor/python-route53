@@ -19,15 +19,17 @@ def get_change_values(change):
     action, rrset = change
 
     if action == 'CREATE':
-        # For creations, we want the new values. They don't need to match.
-        return dict(
-            name=rrset.name,
-            ttl=rrset.ttl,
-            records=rrset.records,
-        )
+        # For creations, we want the current values, since they don't need to
+        # match an existing record set.
+        values = dict()
+        for key, val in rrset._initial_vals.items():
+            # Pull from the record set's attributes, which are the current
+            # values.
+            values[key] = getattr(rrset, key)
+        return values
     else:
-        # We can just dump the initial values dict for deletions, since we
-        # want the original values to match in the deletion request.
+        # We can look at the initial values dict for deletions, since we
+        # have to match against the values currently in Route53.
         return rrset._initial_vals
 
 def write_change(change):
@@ -57,9 +59,20 @@ def write_change(change):
     e_type = etree.SubElement(e_rrset, "Type")
     e_type.text = rrset.rrset_type
 
+    if 'set_identifier' in change_vals:
+        e_set_id = etree.SubElement(e_rrset, "SetIdentifier")
+        e_set_id.text = change_vals['set_identifer']
+
+    if 'weight' in change_vals:
+        e_weight = etree.SubElement(e_rrset, "Weight")
+        e_weight.text = change_vals['weight']
+
+    if 'region' in change_vals:
+        e_weight = etree.SubElement(e_rrset, "Region")
+        e_weight.text = change_vals['region']
+
     e_ttl = etree.SubElement(e_rrset, "TTL")
     e_ttl.text = str(change_vals['ttl'])
-
 
     if rrset.is_alias_record_set():
         # A record sets in Alias mode don't have any resource records.
