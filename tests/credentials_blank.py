@@ -1,0 +1,6 @@
+"""
+Copy this file to credentials.py and change the values there.
+"""
+
+AWS_ACCESS_KEY_ID = 'XXXXXXXXXXXXXXXXXXXX'
+AWS_SECRET_ACCESS_KEY = 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'

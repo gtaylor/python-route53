@@ -1,8 +1,8 @@
 *.pyc
 *~
 *.tmp
-test_basic.py
 MANIFEST
 build
 dist
 .idea
+tests/credentials.py
