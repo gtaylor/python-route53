@@ -35,6 +35,8 @@ class HostedZone(object):
 
         # Don't access this directly, we use it for lazy loading.
         self._nameservers = []
+        # This is set to True when this HostedZone has been deleted in Route53.
+        self._is_deleted = False
 
     def __str__(self):
         return '<HostedZone: %s -- %s>' % (self.name, self.id)
@@ -74,16 +76,42 @@ class HostedZone(object):
         for rrset in self.connection.list_resource_record_sets_by_zone_id(self.id):
             yield rrset
 
-    def delete(self):
+    def delete(self, force=False):
         """
-        Deletes this hosted zone.
+        Deletes this hosted zone. After this method is ran, you won't be able
+        to add records, or do anything else with the zone. You'd need to
+        re-create it, as zones are read-only after creation.
 
+        :keyword bool force: If ``True``, delete the HostedZone, even if it
+            means nuking all associated record sets. If ``False``, an
+            exception is raised if this HostedZone has record sets.
         :rtype: dict
         :returns: A dict of change info, which contains some details about
             the request.
         """
 
-        return self.connection.delete_hosted_zone_by_id(self.id)
+        if force:
+            # Forcing deletion by cleaning up all record sets first. We'll
+            # do it all in one change set.
+            cset = ChangeSet(connection=self.connection, hosted_zone_id=self.id)
+
+            for rrset in self.record_sets:
+                # You can delete a HostedZone if there are only SOA and NS
+                # entries left. So delete everything but SOA/NS entries.
+                if rrset.rrset_type not in ['SOA', 'NS']:
+                    cset.add_change('DELETE', rrset)
+                    
+            if cset.deletions or cset.creations:
+                # Bombs away.
+                self.connection._change_resource_record_sets(cset)
+
+        # Now delete the HostedZone.
+        retval = self.connection.delete_hosted_zone_by_id(self.id)
+
+        # TODO: Eventually protect against adding records to a deleted instance.
+        self._is_deleted = True
+
+        return retval
 
     def add_a_record(self, name, values, ttl=60):
         """

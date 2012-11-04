@@ -68,7 +68,6 @@ def write_change(change):
     e_resource_records = etree.SubElement(e_rrset, "ResourceRecords")
 
     for value in change_vals['records']:
-
         e_resource_record = etree.SubElement(e_resource_records, "ResourceRecord")
         e_value = etree.SubElement(e_resource_record, "Value")
         e_value.text = value

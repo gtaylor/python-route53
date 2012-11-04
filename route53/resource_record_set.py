@@ -88,8 +88,18 @@ class ResourceRecordSet(object):
         Saves any changes to this record set.
         """
 
-        # TODO: Copy changes to self._initial_vals.
-        pass
+        cset = ChangeSet(connection=self.connection, hosted_zone_id=self.zone_id)
+        cset.add_change('DELETE', self)
+        cset.add_change('CREATE', self)
+
+        retval = self.connection._change_resource_record_sets(cset)
+
+        # Now copy the current attribute values on this instance to
+        # the initial_vals dict. This will re-set the modification tracking.
+        for key, val in self._initial_vals.items():
+            self._initial_vals[key] = getattr(self, key)
+
+        return retval
 
     def is_alias_record_set(self):
         """
