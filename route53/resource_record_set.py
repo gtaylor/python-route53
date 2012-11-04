@@ -90,9 +90,12 @@ class ResourceRecordSet(object):
         """
 
         cset = ChangeSet(connection=self.connection, hosted_zone_id=self.zone_id)
+        # Record sets can't actually be modified. You have to delete the
+        # existing one and create a new one. Since this happens within a single
+        # change set, it appears that the values were modified, when instead
+        # the whole thing is replaced.
         cset.add_change('DELETE', self)
         cset.add_change('CREATE', self)
-
         retval = self.connection._change_resource_record_sets(cset)
 
         # Now copy the current attribute values on this instance to
