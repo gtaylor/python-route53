@@ -1,4 +1,5 @@
 from route53.change_set import ChangeSet
+from route53.exceptions import AlreadyDeletedError
 from route53.resource_record_set import AResourceRecordSet
 
 class HostedZone(object):
@@ -90,6 +91,9 @@ class HostedZone(object):
             the request.
         """
 
+        if self._is_deleted:
+            raise AlreadyDeletedError('HostedZone is already deleted.')
+
         if force:
             # Forcing deletion by cleaning up all record sets first. We'll
             # do it all in one change set.
@@ -100,7 +104,7 @@ class HostedZone(object):
                 # entries left. So delete everything but SOA/NS entries.
                 if rrset.rrset_type not in ['SOA', 'NS']:
                     cset.add_change('DELETE', rrset)
-                    
+
             if cset.deletions or cset.creations:
                 # Bombs away.
                 self.connection._change_resource_record_sets(cset)
@@ -108,7 +112,7 @@ class HostedZone(object):
         # Now delete the HostedZone.
         retval = self.connection.delete_hosted_zone_by_id(self.id)
 
-        # TODO: Eventually protect against adding records to a deleted instance.
+        # Used to protect against modifying a deleted HostedZone.
         self._is_deleted = True
 
         return retval
@@ -124,6 +128,9 @@ class HostedZone(object):
         :returns: A tuple in the form of ``(rrset, change_info)``, where
             ``rrset`` is the newly created AResourceRecordSet instance.
         """
+
+        if self._is_deleted:
+            raise AlreadyDeletedError("Can't add records to a deleted HostedZone.")
 
         rrset = AResourceRecordSet(
             connection=self.connection,

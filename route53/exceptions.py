@@ -6,3 +6,12 @@ class Route53Error(Exception):
     """
 
     pass
+
+
+class AlreadyDeletedError(Route53Error):
+    """
+    Raised when the user tries to modify something on a hosted zone that
+    has been deleted in Route53.
+    """
+
+    pass
