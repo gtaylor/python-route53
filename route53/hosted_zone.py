@@ -1,6 +1,6 @@
 from route53.change_set import ChangeSet
 from route53.exceptions import AlreadyDeletedError
-from route53.resource_record_set import AResourceRecordSet
+from route53.resource_record_set import AResourceRecordSet, AAAAResourceRecordSet, CNAMEResourceRecordSet, MXResourceRecordSet, NSResourceRecordSet, PTRResourceRecordSet, SOAResourceRecordSet, SPFResourceRecordSet, SRVResourceRecordSet, TXTResourceRecordSet
 
 class HostedZone(object):
     """
@@ -127,11 +127,52 @@ class HostedZone(object):
         if self._is_deleted:
             raise AlreadyDeletedError("Can't manipulate a deleted zone.")
 
-    def add_a_record(self, name, values, ttl=60, weight=None, region=None,
+    def _add_record(self, record_set_class, name, values, ttl=60, weight=None,
+                    region=None,set_identifier=None, alias_hosted_zone_id=None,
+                    alias_dns_name=None):
+        """
+        Convenience method for creating ResourceRecordSets. Most of the calls
+        are basically the same, this saves on repetition.
+
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created ResourceRecordSet sub-class
+             instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        rrset_kwargs = dict(
+            connection=self.connection,
+            zone_id=self.id,
+            name=name,
+            ttl=ttl,
+            records=values,
+            weight=weight,
+            region=region,
+            set_identifier=set_identifier,
+            )
+
+        if alias_hosted_zone_id or alias_dns_name:
+            rrset_kwargs.update(dict(
+                alias_hosted_zone_id=alias_hosted_zone_id,
+                alias_dns_name=alias_dns_name
+            ))
+
+        rrset = record_set_class(**rrset_kwargs)
+
+        cset = ChangeSet(connection=self.connection, hosted_zone_id=self.id)
+        cset.add_change('CREATE', rrset)
+
+        change_info = self.connection._change_resource_record_sets(cset)
+
+        return rrset, change_info
+
+    def create_a_record(self, name, values, ttl=60, weight=None, region=None,
                      set_identifier=None, alias_hosted_zone_id=None,
                      alias_dns_name=None):
         """
-        Adds an A record to the hosted zone.
+        Creates an A record attached to this hosted zone.
 
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
@@ -158,22 +199,296 @@ class HostedZone(object):
 
         self._halt_if_already_deleted()
 
-        rrset = AResourceRecordSet(
-            alias_hosted_zone_id=alias_hosted_zone_id,
-            alias_dns_name=alias_dns_name,
-            connection=self.connection,
-            zone_id=self.id,
-            name=name,
-            ttl=ttl,
-            records=values,
-            weight=weight,
-            region=region,
-            set_identifier=set_identifier,
-        )
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
 
-        cset = ChangeSet(connection=self.connection, hosted_zone_id=self.id)
-        cset.add_change('CREATE', rrset)
+        return self._add_record(AResourceRecordSet, **values)
 
-        change_info = self.connection._change_resource_record_sets(cset)
+    def create_aaaa_record(self, name, values, ttl=60, weight=None, region=None,
+                        set_identifier=None):
+        """
+        Creates an AAAA record attached to this hosted zone.
 
-        return rrset, change_info
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created AAAAResourceRecordSet instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
+
+        return self._add_record(AAAAResourceRecordSet, **values)
+
+    def create_cname_record(self, name, values, ttl=60, weight=None, region=None,
+                           set_identifier=None):
+        """
+        Creates a CNAME record attached to this hosted zone.
+
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created CNAMEResourceRecordSet instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
+
+        return self._add_record(CNAMEResourceRecordSet, **values)
+
+    def create_mx_record(self, name, values, ttl=60, weight=None, region=None,
+                            set_identifier=None):
+        """
+        Creates a MX record attached to this hosted zone.
+
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created MXResourceRecordSet instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
+
+        return self._add_record(MXResourceRecordSet, **values)
+
+    def create_ns_record(self, name, values, ttl=60, weight=None, region=None,
+                         set_identifier=None):
+        """
+        Creates a NS record attached to this hosted zone.
+
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created NSResourceRecordSet instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
+
+        return self._add_record(NSResourceRecordSet, **values)
+
+    def create_ptr_record(self, name, values, ttl=60, weight=None, region=None,
+                         set_identifier=None):
+        """
+        Creates a PTR record attached to this hosted zone.
+
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created PTRResourceRecordSet instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
+
+        return self._add_record(PTRResourceRecordSet, **values)
+
+    def create_soa_record(self, name, values, ttl=60, weight=None, region=None,
+                          set_identifier=None):
+        """
+        Creates a SOA record attached to this hosted zone.
+
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created SOAResourceRecordSet instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
+
+        return self._add_record(SOAResourceRecordSet, **values)
+
+    def create_spf_record(self, name, values, ttl=60, weight=None, region=None,
+                          set_identifier=None):
+        """
+        Creates a SPF record attached to this hosted zone.
+
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created SPFResourceRecordSet instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
+
+        return self._add_record(SPFResourceRecordSet, **values)
+
+    def create_srv_record(self, name, values, ttl=60, weight=None, region=None,
+                          set_identifier=None):
+        """
+        Creates a SRV record attached to this hosted zone.
+
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created SRVResourceRecordSet instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
+
+        return self._add_record(SRVResourceRecordSet, **values)
+
+    def create_txt_record(self, name, values, ttl=60, weight=None, region=None,
+                          set_identifier=None):
+        """
+        Creates a TXT record attached to this hosted zone.
+
+        :param str name: The fully qualified name of the record to add.
+        :param list values: A list of value strings for the record.
+        :keyword int ttl: The time-to-live of the record (in seconds).
+        :keyword int weight: For weighted record sets only. Among resource record
+            sets that have the same combination of DNS name and type, a value
+            that determines what portion of traffic for the current resource
+            record set is routed to the associated location. Ranges from 0-255.
+        :keyword str region: For latency-based record sets. The Amazon EC2 region
+            where the resource that is specified in this resource record set
+            resides.
+        :keyword str set_identifier: For weighted and latency resource record
+            sets only. An identifier that differentiates among multiple
+            resource record sets that have the same combination of DNS name
+            and type. 1-128 chars.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created TXTResourceRecordSet instance.
+        """
+
+        self._halt_if_already_deleted()
+
+        # Grab the params/kwargs here for brevity's sake.
+        values = locals()
+        del values['self']
+
+        return self._add_record(TXTResourceRecordSet, **values)

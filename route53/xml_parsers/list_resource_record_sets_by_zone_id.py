@@ -5,6 +5,9 @@ from route53.resource_record_set import AResourceRecordSet, AAAAResourceRecordSe
 RRSET_TAG_TO_KWARG_MAP = {
     'Name': 'name',
     'TTL': 'ttl',
+    'Weight': 'weight',
+    'Region': 'region',
+    'SetIdentifier': 'set_identifier',
 }
 
 # Maps the various ResourceRecordSet Types to various RRSet subclasses.

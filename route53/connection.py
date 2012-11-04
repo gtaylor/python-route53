@@ -39,7 +39,7 @@ class Route53Connection(object):
 
         response_body = self.transport.send_request(path, data, method)
         root = etree.fromstring(response_body)
-        print(prettyprint_xml(root))
+        #print(prettyprint_xml(root))
         return root
 
     def _do_autopaginating_api_call(self, path, params, method, parser_func,
@@ -270,7 +270,7 @@ class Route53Connection(object):
             method='POST',
         )
 
-        print(prettyprint_xml(root))
+        #print(prettyprint_xml(root))
 
         e_change_info = root.find('./{*}ChangeInfo')
         return parse_change_info(e_change_info)

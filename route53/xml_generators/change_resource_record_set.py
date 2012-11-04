@@ -59,15 +59,23 @@ def write_change(change):
     e_type = etree.SubElement(e_rrset, "Type")
     e_type.text = rrset.rrset_type
 
-    if 'set_identifier' in change_vals:
+    if change_vals.get('set_identifier'):
         e_set_id = etree.SubElement(e_rrset, "SetIdentifier")
-        e_set_id.text = change_vals['set_identifer']
+        e_set_id.text = change_vals['set_identifier']
 
-    if 'weight' in change_vals:
+    if change_vals.get('weight'):
         e_weight = etree.SubElement(e_rrset, "Weight")
         e_weight.text = change_vals['weight']
 
-    if 'region' in change_vals:
+    if change_vals.get('alias_hosted_zone_id') or change_vals.get('alias_dns_name'):
+        e_alias_target = etree.SubElement(e_rrset, "AliasTarget")
+
+        e_hosted_zone_id = etree.SubElement(e_alias_target, "HostedZoneId")
+        e_hosted_zone_id.text = change_vals['alias_hosted_zone_id']
+        e_dns_name = etree.SubElement(e_alias_target, "DNSName")
+        e_dns_name.text = change_vals['alias_dns_name']
+
+    if change_vals.get('region'):
         e_weight = etree.SubElement(e_rrset, "Region")
         e_weight.text = change_vals['region']
 
@@ -118,7 +126,7 @@ def change_resource_record_set_writer(connection, change_set, comment=None):
 
     e_tree = etree.ElementTree(element=e_root)
 
-    print(prettyprint_xml(e_root))
+    #print(prettyprint_xml(e_root))
 
     fobj = BytesIO()
     # This writes bytes.
