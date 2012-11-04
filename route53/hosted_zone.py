@@ -91,8 +91,7 @@ class HostedZone(object):
             the request.
         """
 
-        if self._is_deleted:
-            raise AlreadyDeletedError('HostedZone is already deleted.')
+        self._halt_if_already_deleted()
 
         if force:
             # Forcing deletion by cleaning up all record sets first. We'll
@@ -117,6 +116,17 @@ class HostedZone(object):
 
         return retval
 
+    def _halt_if_already_deleted(self):
+        """
+        Convenience method used to raise an AlreadyDeletedError exception if
+        this HostedZone has been deleted.
+
+        :raises: AlreadyDeletedError
+        """
+
+        if self._is_deleted:
+            raise AlreadyDeletedError("Can't manipulate a deleted zone.")
+
     def add_a_record(self, name, values, ttl=60):
         """
         Adds an A record to the hosted zone.
@@ -129,8 +139,7 @@ class HostedZone(object):
             ``rrset`` is the newly created AResourceRecordSet instance.
         """
 
-        if self._is_deleted:
-            raise AlreadyDeletedError("Can't add records to a deleted HostedZone.")
+        self._halt_if_already_deleted()
 
         rrset = AResourceRecordSet(
             connection=self.connection,

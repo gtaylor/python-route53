@@ -58,7 +58,8 @@ class ResourceRecordSet(object):
 
     def is_modified(self):
         """
-        Determines whether this record set has been modified since retrieval.
+        Determines whether this record set has been modified since the
+        last retrieval or save.
 
         :rtype: bool
         :returns: ``True` if the record set has been modified,
