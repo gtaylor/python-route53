@@ -92,8 +92,9 @@ class HostedZone(object):
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :rtype: AResourceRecordSet
-        :returns: The newly created AResourceRecordSet instance.
+        :rtype: tuple
+        :returns: A tuple in the form of ``(rrset, change_info)``, where
+            ``rrset`` is the newly created AResourceRecordSet instance.
         """
 
         rrset = AResourceRecordSet(

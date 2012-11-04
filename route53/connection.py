@@ -253,6 +253,9 @@ class Route53Connection(object):
         :param change_set.ChangeSet change_set: The ChangeSet object to create
             the XML doc from.
         :keyword str comment: An optional comment to go along with the request.
+        :rtype: dict
+        :returns: A dict of change info, which contains some details about
+            the request.
         """
 
         body = xml_generators.change_resource_record_set_writer(

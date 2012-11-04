@@ -15,8 +15,9 @@ class ChangeSet(object):
         """
 
         self.connection = connection
-        self.changes = []
         self.hosted_zone_id = hosted_zone_id
+        self.creations = []
+        self.deletions = []
 
     def add_change(self, action, record_set):
         """
@@ -32,4 +33,9 @@ class ChangeSet(object):
         if action not in ['CREATE', 'DELETE']:
             raise Route53Error("action must be one of 'CREATE' or 'DELETE'")
 
-        self.changes.append((action, record_set))
+        change_tuple = (action, record_set)
+
+        if action == 'CREATE':
+            self.creations.append(change_tuple)
+        else:
+            self.deletions.append(change_tuple)
