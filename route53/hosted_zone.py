@@ -269,25 +269,13 @@ class HostedZone(object):
 
         return self._add_record(CNAMEResourceRecordSet, **values)
 
-    def create_mx_record(self, name, values, ttl=60, weight=None, region=None,
-                            set_identifier=None):
+    def create_mx_record(self, name, values, ttl=60):
         """
         Creates a MX record attached to this hosted zone.
 
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
-            sets that have the same combination of DNS name and type, a value
-            that determines what portion of traffic for the current resource
-            record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
-            where the resource that is specified in this resource record set
-            resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
-            resource record sets that have the same combination of DNS name
-            and type. 1-128 chars.
         :rtype: tuple
         :returns: A tuple in the form of ``(rrset, change_info)``, where
             ``rrset`` is the newly created MXResourceRecordSet instance.
@@ -301,25 +289,13 @@ class HostedZone(object):
 
         return self._add_record(MXResourceRecordSet, **values)
 
-    def create_ns_record(self, name, values, ttl=60, weight=None, region=None,
-                         set_identifier=None):
+    def create_ns_record(self, name, values, ttl=60):
         """
         Creates a NS record attached to this hosted zone.
 
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
-            sets that have the same combination of DNS name and type, a value
-            that determines what portion of traffic for the current resource
-            record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
-            where the resource that is specified in this resource record set
-            resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
-            resource record sets that have the same combination of DNS name
-            and type. 1-128 chars.
         :rtype: tuple
         :returns: A tuple in the form of ``(rrset, change_info)``, where
             ``rrset`` is the newly created NSResourceRecordSet instance.
@@ -333,25 +309,13 @@ class HostedZone(object):
 
         return self._add_record(NSResourceRecordSet, **values)
 
-    def create_ptr_record(self, name, values, ttl=60, weight=None, region=None,
-                         set_identifier=None):
+    def create_ptr_record(self, name, values, ttl=60):
         """
         Creates a PTR record attached to this hosted zone.
 
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
-            sets that have the same combination of DNS name and type, a value
-            that determines what portion of traffic for the current resource
-            record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
-            where the resource that is specified in this resource record set
-            resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
-            resource record sets that have the same combination of DNS name
-            and type. 1-128 chars.
         :rtype: tuple
         :returns: A tuple in the form of ``(rrset, change_info)``, where
             ``rrset`` is the newly created PTRResourceRecordSet instance.
@@ -397,25 +361,13 @@ class HostedZone(object):
 
         return self._add_record(SOAResourceRecordSet, **values)
 
-    def create_spf_record(self, name, values, ttl=60, weight=None, region=None,
-                          set_identifier=None):
+    def create_spf_record(self, name, values, ttl=60):
         """
         Creates a SPF record attached to this hosted zone.
 
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
-            sets that have the same combination of DNS name and type, a value
-            that determines what portion of traffic for the current resource
-            record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
-            where the resource that is specified in this resource record set
-            resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
-            resource record sets that have the same combination of DNS name
-            and type. 1-128 chars.
         :rtype: tuple
         :returns: A tuple in the form of ``(rrset, change_info)``, where
             ``rrset`` is the newly created SPFResourceRecordSet instance.
@@ -429,25 +381,13 @@ class HostedZone(object):
 
         return self._add_record(SPFResourceRecordSet, **values)
 
-    def create_srv_record(self, name, values, ttl=60, weight=None, region=None,
-                          set_identifier=None):
+    def create_srv_record(self, name, values, ttl=60):
         """
         Creates a SRV record attached to this hosted zone.
 
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
-            sets that have the same combination of DNS name and type, a value
-            that determines what portion of traffic for the current resource
-            record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
-            where the resource that is specified in this resource record set
-            resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
-            resource record sets that have the same combination of DNS name
-            and type. 1-128 chars.
         :rtype: tuple
         :returns: A tuple in the form of ``(rrset, change_info)``, where
             ``rrset`` is the newly created SRVResourceRecordSet instance.
