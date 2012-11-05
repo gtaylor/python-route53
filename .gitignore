@@ -7,3 +7,4 @@ dist
 .idea
 tests/credentials.py
 doc_src/_build/*
+.DS_Store
