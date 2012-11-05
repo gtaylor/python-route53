@@ -29,6 +29,7 @@ User Guide
    :maxdepth: 2
 
    installation
+   quickstart
 
 Indices and tables
 ==================
