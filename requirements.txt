@@ -1,3 +1,4 @@
 requests==0.14.1
+pytz
 nose
 lxml

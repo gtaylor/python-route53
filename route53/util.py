@@ -3,10 +3,11 @@ Various utility stuff that is useful across the codebase.
 """
 
 import datetime
+import pytz
 from lxml import etree
 
 # This can be used as a tzinfo arg to the datetime functions/methods.
-UTC_TIMEZONE = datetime.timezone(datetime.timedelta(hours=0), 'UTC')
+UTC_TIMEZONE = pytz.utc
 
 def parse_iso_8601_time_str(time_str):
     """
