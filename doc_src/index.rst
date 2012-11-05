@@ -1,17 +1,23 @@
-.. python-route53 documentation master file, created by
-   sphinx-quickstart on Sun Nov  4 21:03:55 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
-Welcome to python-route53's documentation!
-==========================================
+python-route53
+==============
 
-Contents:
+python-route53 is a `BSD <BSD License>`_ licensed Route53 API for Python
+2.7 and 3.x. The primary goal of this module is to be as simple to use as
+possible.
+
+Assorted Info
+-------------
+
+* `Issue tracker`_ - Report bugs here.
+* `GitHub project`_ - Source code lives here.
+* `@gctaylor Twitter`_ - Tweets from the maintainer.
+
+User Guide
+----------
 
 .. toctree::
    :maxdepth: 2
-
-
 
 Indices and tables
 ==================

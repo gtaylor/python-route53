@@ -1,0 +1,16 @@
+.. _GitHub project: https://github.com/gtaylor/python-route53
+.. _issue tracker: https://github.com/gtaylor/python-route53/issues
+.. _@gctaylor Twitter: https://twitter.com/#!/gctaylor
+
+.. _Python: http://python.org
+.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+
+.. _virtualenv: http://pypi.python.org/pypi/virtualenv
+.. _virtualenvwrapper: http://www.doughellmann.com/projects/virtualenvwrapper/
+
+.. _git: http://git-scm.com/
+
+.. _GitHub: https://github.com/
+
+.. _BSD License: http://opensource.org/licenses/bsd-license.php
+.. _Route 53: http://aws.amazon.com/route53/
