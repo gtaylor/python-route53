@@ -21,6 +21,7 @@ Assorted Info
 * `Issue tracker`_ - Report bugs here.
 * `GitHub project`_ - Source code lives here.
 * `@gctaylor Twitter`_ - Tweets from the maintainer.
+* AWS's Official `Route 53 Documentation`_ - Behaviors, specifics, more details.
 
 User Guide
 ----------

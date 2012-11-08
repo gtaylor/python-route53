@@ -14,4 +14,5 @@
 
 .. _BSD License: http://opensource.org/licenses/bsd-license.php
 .. _Route 53: http://aws.amazon.com/route53/
+.. _Route 53 Documentation: http://aws.amazon.com/documentation/route53/
 .. _boto: http://boto.cloudhackers.com/

@@ -9,6 +9,11 @@ This section goes over how to get up and running quickly. We'll assume that
 you have already followed the :doc:`installation` instructions, and are
 ready to go.
 
+.. tip:: It's best to combine our documentation with the
+    `Route 53 Documentation`_. While we'll do our best to make this as
+    simple as possible, it may be necessary to look at what they've got for
+    more details on behavior and how things work.
+
 AWS credentials
 ---------------
 
@@ -83,6 +88,9 @@ instance, and some details about the pending change from the API:
 
     # This has some details about the change from the API.
     print(change_info)
+
+.. note:: Notice that we passed in a fully-qualified domain name,
+    ``some-domain.com.``, ending in a period.
 
 In this case, ``new_zone`` is a new :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
 instance, and ``change_info`` is a dict with some details about the changes
