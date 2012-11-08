@@ -187,15 +187,15 @@ class HostedZone(object):
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
+        :keyword int weight: *For weighted record sets only*. Among resource record
             sets that have the same combination of DNS name and type, a value
             that determines what portion of traffic for the current resource
             record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
+        :keyword str region: *For latency-based record sets*. The Amazon EC2 region
             where the resource that is specified in this resource record set
             resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
+        :keyword str set_identifier: *For weighted and latency resource record
+            sets only*. An identifier that differentiates among multiple
             resource record sets that have the same combination of DNS name
             and type. 1-128 chars.
         :keyword str alias_hosted_zone_id: Alias A records have this specified.
@@ -225,15 +225,15 @@ class HostedZone(object):
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
+        :keyword int weight: *For weighted record sets only*. Among resource record
             sets that have the same combination of DNS name and type, a value
             that determines what portion of traffic for the current resource
             record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
+        :keyword str region: *For latency-based record sets*. The Amazon EC2 region
             where the resource that is specified in this resource record set
             resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
+        :keyword str set_identifier: *For weighted and latency resource record
+            sets only*. An identifier that differentiates among multiple
             resource record sets that have the same combination of DNS name
             and type. 1-128 chars.
         :rtype: tuple
@@ -257,15 +257,15 @@ class HostedZone(object):
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
+        :keyword int weight: *For weighted record sets only*. Among resource record
             sets that have the same combination of DNS name and type, a value
             that determines what portion of traffic for the current resource
             record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
+        :keyword str region: *For latency-based record sets*. The Amazon EC2 region
             where the resource that is specified in this resource record set
             resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
+        :keyword str set_identifier: *For weighted and latency resource record
+            sets only*. An identifier that differentiates among multiple
             resource record sets that have the same combination of DNS name
             and type. 1-128 chars.
         :rtype: tuple
@@ -389,15 +389,15 @@ class HostedZone(object):
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
         :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
+        :keyword int weight: *For weighted record sets only*. Among resource record
             sets that have the same combination of DNS name and type, a value
             that determines what portion of traffic for the current resource
             record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
+        :keyword str region: *For latency-based record sets*. The Amazon EC2 region
             where the resource that is specified in this resource record set
             resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
+        :keyword str set_identifier: *For weighted and latency resource record
+            sets only*. An identifier that differentiates among multiple
             resource record sets that have the same combination of DNS name
             and type. 1-128 chars.
         :rtype: tuple

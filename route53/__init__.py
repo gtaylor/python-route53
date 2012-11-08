@@ -10,6 +10,10 @@ VERSION = '0.1'
 
 def connect(aws_access_key_id=None, aws_secret_access_key=None, **kwargs):
     """
+    Instantiates and returns a :py:class:`route53.connection.Route53Connection`
+    instance, which is how you'll start your interactions with the Route 53
+    API.
+
     :keyword str aws_access_key_id: Your AWS Access Key ID
     :keyword str aws_secret_access_key: Your AWS Secret Access Key
 

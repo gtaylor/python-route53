@@ -83,3 +83,10 @@ route53.resource_record_set
    :members:
    :undoc-members:
    :inherited-members:
+
+route53.exceptions
+==================
+
+.. automodule:: route53.exceptions
+   :members:
+   :undoc-members:
