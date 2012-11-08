@@ -1,6 +1,9 @@
 """
-Top-level route53 module. Go through :py:func:`connect` to get a
-Route53Connection instance to work with the Route53 API.
+The top-level route53 module is used as the default entry point to
+python-route53's functionality. You'll want to go through the :py:func:`connect`
+function to get a
+:py:class:`Route53Connection <route53.connection.Route53Connection>`
+instance to work with the Route 53 API.
 """
 
 VERSION = '0.1'
@@ -11,7 +14,7 @@ def connect(aws_access_key_id=None, aws_secret_access_key=None, **kwargs):
     :keyword str aws_secret_access_key: Your AWS Secret Access Key
 
     :rtype: :py:class:`route53.connection.Route53Connection`
-    :return: A connection to Amazon's Route53
+    :return: A connection to Amazon's Route 53
     """
 
     from route53.connection import Route53Connection

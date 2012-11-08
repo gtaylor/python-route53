@@ -6,7 +6,7 @@ class ResourceRecordSet(object):
     anything from TXT entries, to A entries, to CNAMEs.
 
     .. warning:: Do not instantiate this directly yourself. Go through
-        one of the methods on:py:class:``route53.connection.Route53Connection`.
+        one of the methods on:py:class:`route53.connection.Route53Connection`.
     """
 
     # Override this in your sub-class.

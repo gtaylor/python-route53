@@ -10,7 +10,7 @@ class HostedZone(object):
     Each hosted zone has its own metadata and configuration information.
 
     .. warning:: Do not instantiate this directly yourself. Go through
-        one of the methods on:py:class:``route53.connection.Route53Connection`.
+        one of the methods on:py:class:`route53.connection.Route53Connection`.
     """
 
     def __init__(self, connection, id, name, caller_reference,
@@ -74,7 +74,7 @@ class HostedZone(object):
         :returns: A generator of ResourceRecordSet sub-classes.
         """
 
-        for rrset in self.connection.list_resource_record_sets_by_zone_id(self.id):
+        for rrset in self.connection._list_resource_record_sets_by_zone_id(self.id):
             yield rrset
 
     def delete(self, force=False):

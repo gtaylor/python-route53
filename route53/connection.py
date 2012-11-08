@@ -1,12 +1,20 @@
 from lxml import etree
 from route53 import xml_parsers, xml_generators
 from route53.transport import RequestsTransport
-from route53.util import prettyprint_xml
+#from route53.util import prettyprint_xml
 from route53.xml_parsers.common_change_info import parse_change_info
 
 class Route53Connection(object):
     """
-    This class serves as the interface to the AWS Route53 API.
+    Instances of this class are instantiated by the top-level
+    :py:func:`route53.connect` function, and serve as a high level gateway
+    to the Route 53 API. The majority of your interaction with these
+    instances will probably be creating, deleting, and retrieving
+    :py:class:`HostedZone <route53.hosted_zone.HostedZone>` instances.
+
+    .. warning:: Do not instantiate instances of this class yourself.
+
+    :attr endpoint_version: The date-based API version.
     """
 
     endpoint_version = '2012-02-29'
@@ -95,7 +103,7 @@ class Route53Connection(object):
             params[next_marker_param_name] = next_marker.text
 
             if next_type_xpath:
-                # This is a list_resource_record_sets_by_zone_id call. Look
+                # This is a _list_resource_record_sets_by_zone_id call. Look
                 # for the given tag via XPath and adjust our type arg for
                 # the next request. Without specifying this, we loop
                 # infinitely.
@@ -109,12 +117,16 @@ class Route53Connection(object):
         entries as you'd like, without having to query and receive every
         hosted zone you may have.
 
-        :keyword int page_chunks: This API call is paginated behind-the-scenes
-            by this many HostedZone instances. The default should be fine for
-            just about everybody, aside from those with tons of zones.
+        :keyword int page_chunks: This API call is "paginated" behind-the-scenes
+            in order to break up large result sets. This number determines
+            the maximum number of
+            :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+            instances to retrieve per request. The default is fine for almost
+            everyone.
 
         :rtype: generator
-        :returns: A generator of HostedZone instances.
+        :returns: A generator of :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+            instances.
         """
 
         return  self._do_autopaginating_api_call(
@@ -128,19 +140,21 @@ class Route53Connection(object):
 
     def create_hosted_zone(self, name, caller_reference=None, comment=None):
         """
-        Creates a new hosted zone.
+        Creates and returns a new hosted zone. Once a hosted zone is created,
+        its details can't be changed.
 
         :param str name: The name of the hosted zone to create.
         :keyword str caller_reference: A unique string that identifies the
             request and that allows failed create_hosted_zone requests to be
             retried without the risk of executing the operation twice. If no
-             value is given, we'll generate a Type 4 UUID for you.
+            value is given, we'll generate a Type 4 UUID for you.
         :keyword str comment: An optional comment to attach to the zone.
         :rtype: tuple
         :returns: A tuple in the form of ``(hosted_zone, change_info)``.
-            The ``hosted_zone`` variable contains a HostedZone instance matching
-            the newly created zone, and ``change_info`` is a dict with some
-            details about the API request.
+            The ``hosted_zone`` variable contains a
+            :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+            instance matching the newly created zone, and ``change_info``
+            is a dict with some details about the API request.
         """
 
         body = xml_generators.create_hosted_zone_writer(
@@ -163,11 +177,12 @@ class Route53Connection(object):
 
     def get_hosted_zone_by_id(self, id):
         """
-        Retrieves a hosted zone, by Hosted Zone ID (not name).
+        Retrieves a hosted zone, by hosted zone ID (not name).
 
         :param str id: The hosted zone's ID (a short hash string).
-        :rtype: HostedZone
-        :returns: The requested hosted zone.
+        :rtype: :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+        :returns: An :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+            instance representing the requested hosted zone.
         """
 
         root = self._send_request(
@@ -183,7 +198,17 @@ class Route53Connection(object):
 
     def delete_hosted_zone_by_id(self, id):
         """
-        Deletes a hosted zone, by Hosted Zone ID (not name).
+        Deletes a hosted zone, by hosted zone ID (not name).
+
+        .. tip:: For most cases, we recommend deleting hosted zones via a
+            :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+            instance's
+            :py:meth:`HostedZone.delete <route53.hosted_zone.HostedZone.delete>`
+            method, but this saves an HTTP request if you already know the zone's ID.
+
+        .. note:: Unlike
+            :py:meth:`HostedZone.delete <route53.hosted_zone.HostedZone.delete>`,
+            this method has no optional ``force`` kwarg.
 
         :param str id: The hosted zone's ID (a short hash string).
         :rtype: dict
@@ -202,11 +227,19 @@ class Route53Connection(object):
             connection=self,
         )
 
-    def list_resource_record_sets_by_zone_id(self, id, rrset_type=None,
+    def _list_resource_record_sets_by_zone_id(self, id, rrset_type=None,
                                              identifier=None, name=None,
                                              page_chunks=100):
         """
-        Lists resource record sets by Zone ID.
+        Lists a hosted zone's resource record sets by Zone ID, if you
+        already know it.
+
+        .. tip:: For most cases, we recommend going through a
+            :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+            instance's
+            :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`
+            property, but this saves an HTTP request if you already know the
+            zone's ID.
 
         :param str id: The ID of the zone whose record sets we're listing.
         :keyword str rrset_type: The type of resource record set to begin the

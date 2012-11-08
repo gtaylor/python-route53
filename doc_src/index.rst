@@ -31,6 +31,14 @@ User Guide
    installation
    quickstart
 
+Reference
+---------
+
+.. toctree::
+   :maxdepth: 2
+
+   ref-route53
+
 Indices and tables
 ==================
 
