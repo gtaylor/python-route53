@@ -1,4 +1,5 @@
 from route53.change_set import ChangeSet
+from route53.exceptions import Route53Error
 
 class ResourceRecordSet(object):
     """
@@ -68,8 +69,12 @@ class ResourceRecordSet(object):
         """
         Queries for this record set's HostedZone.
 
-        :rtype: HostedZone
-        :returns: The matching HostedZone for this record set.
+        .. note:: This is not cached, it will always return the latest
+            data from the Route 53 API.
+
+        :rtype: :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+        :returns: The matching :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+            for this record set.
         """
 
         return self.connection.get_hosted_zone_by_id(self.zone_id)
@@ -142,6 +147,11 @@ class AResourceRecordSet(ResourceRecordSet):
 
     * Regular A records.
     * Alias A records. These point at an ELB instance instead of an IP.
+
+    Create these via
+    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_a_record>`.
+    Retrieve them via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
 
     rrset_type = 'A'
@@ -182,7 +192,10 @@ class AResourceRecordSet(ResourceRecordSet):
 
 class AAAAResourceRecordSet(ResourceRecordSet):
     """
-    Specific AAAA record class.
+    Specific AAAA record class. Create these via
+    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_aaaa_record>`.
+    Retrieve them via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
 
     rrset_type = 'AAAA'
@@ -190,7 +203,10 @@ class AAAAResourceRecordSet(ResourceRecordSet):
 
 class CNAMEResourceRecordSet(ResourceRecordSet):
     """
-    Specific CNAME record class.
+    Specific CNAME record class. Create these via
+    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_cname_record>`.
+    Retrieve them via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
 
     rrset_type = 'CNAME'
@@ -198,7 +214,10 @@ class CNAMEResourceRecordSet(ResourceRecordSet):
 
 class MXResourceRecordSet(ResourceRecordSet):
     """
-    Specific MX record class.
+    Specific MX record class. Create these via
+    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_mx_record>`.
+    Retrieve them via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
 
     rrset_type = 'MX'
@@ -206,7 +225,10 @@ class MXResourceRecordSet(ResourceRecordSet):
 
 class NSResourceRecordSet(ResourceRecordSet):
     """
-    Specific NS record class.
+    Specific NS record class. Create these via
+    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_ns_record>`.
+    Retrieve them via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
 
     rrset_type = 'NS'
@@ -214,7 +236,10 @@ class NSResourceRecordSet(ResourceRecordSet):
 
 class PTRResourceRecordSet(ResourceRecordSet):
     """
-    Specific PTR record class.
+    Specific PTR record class. Create these via
+    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_ptr_record>`.
+    Retrieve them via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
 
     rrset_type = 'PTR'
@@ -222,15 +247,27 @@ class PTRResourceRecordSet(ResourceRecordSet):
 
 class SOAResourceRecordSet(ResourceRecordSet):
     """
-    Specific SOA record class.
+    Specific SOA record class. Retrieve these via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
+    They can't be created.
     """
 
     rrset_type = 'SOA'
 
+    def delete(self):
+        """
+        SOA records can't be created or deleted.
+        """
+
+        raise Route53Error("SOA records can't be created or deleted.")
+
 
 class SPFResourceRecordSet(ResourceRecordSet):
     """
-    Specific SPF record class.
+    Specific SPF record class. Create these via
+    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_spf_record>`.
+    Retrieve them via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
 
     rrset_type = 'SPF'
@@ -238,7 +275,10 @@ class SPFResourceRecordSet(ResourceRecordSet):
 
 class SRVResourceRecordSet(ResourceRecordSet):
     """
-    Specific SRV record class.
+    Specific SRV record class. Create these via
+    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_srv_record>`.
+    Retrieve them via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
 
     rrset_type = 'SRV'
@@ -246,7 +286,10 @@ class SRVResourceRecordSet(ResourceRecordSet):
 
 class TXTResourceRecordSet(ResourceRecordSet):
     """
-    Specific TXT record class.
+    Specific TXT record class. Create these via
+    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_txt_record>`.
+    Retrieve them via
+    :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
 
     rrset_type = 'TXT'

@@ -10,7 +10,7 @@ class HostedZone(object):
     Each hosted zone has its own metadata and configuration information.
 
     .. warning:: Do not instantiate this directly yourself. Go through
-        one of the methods on:py:class:`route53.connection.Route53Connection`.
+        one of the methods on :py:class:`route53.connection.Route53Connection`.
     """
 
     def __init__(self, connection, id, name, caller_reference,
@@ -45,15 +45,14 @@ class HostedZone(object):
     @property
     def nameservers(self):
         """
-        If this HostedZone was instantiated by ListHostedZones, the nameservers
-        attribute didn't get populated. If the user requests it, we'll
-        lazy load by querying it in after the fact. It's safe to cache like
-        this since  these nameserver values won't change.
-
         :rtype: list
         :returns: A list of nameserver strings for this hosted zone.
         """
 
+        # If this HostedZone was instantiated by ListHostedZones, the nameservers
+        # attribute didn't get populated. If the user requests it, we'll
+        # lazy load by querying it in after the fact. It's safe to cache like
+        # this since  these nameserver values won't change.
         if not self._nameservers:
             # We'll just snatch the nameserver values from a fresh copy
             # via GetHostedZone.
@@ -66,6 +65,14 @@ class HostedZone(object):
     def record_sets(self):
         """
         Queries for the Resource Record Sets that are under this HostedZone.
+        This is typically the way to go to find specific record sets, or
+        to list them all.
+
+        We don't currently implement any filtering convenience method,
+        since it is very easy to do this yourself, catered to your own needs.
+        For example, if you find your match, you may choose to stop iterating
+        on the generator, potentially saving yourself extra API queries
+        (behind the scenes).
 
         .. warning:: This result set can get pretty large if you have a ton
             of records.
@@ -83,9 +90,12 @@ class HostedZone(object):
         to add records, or do anything else with the zone. You'd need to
         re-create it, as zones are read-only after creation.
 
-        :keyword bool force: If ``True``, delete the HostedZone, even if it
+        :keyword bool force: If ``True``, delete the
+            :py:class:`HostedZone <route53.hosted_zone.HostedZone>`, even if it
             means nuking all associated record sets. If ``False``, an
-            exception is raised if this HostedZone has record sets.
+            exception is raised if this
+            :py:class:`HostedZone <route53.hosted_zone.HostedZone>`
+            has record sets.
         :rtype: dict
         :returns: A dict of change info, which contains some details about
             the request.
@@ -172,7 +182,7 @@ class HostedZone(object):
                      set_identifier=None, alias_hosted_zone_id=None,
                      alias_dns_name=None):
         """
-        Creates an A record attached to this hosted zone.
+        Creates and returns an A record attached to this hosted zone.
 
         :param str name: The fully qualified name of the record to add.
         :param list values: A list of value strings for the record.
@@ -194,7 +204,9 @@ class HostedZone(object):
             the DNS name for the ELB that the Alias points to.
         :rtype: tuple
         :returns: A tuple in the form of ``(rrset, change_info)``, where
-            ``rrset`` is the newly created AResourceRecordSet instance.
+            ``rrset`` is the newly created
+            :py:class:`AResourceRecordSet <route53.resource_record_set.AResourceRecordSet>`
+            instance.
         """
 
         self._halt_if_already_deleted()
@@ -328,38 +340,6 @@ class HostedZone(object):
         del values['self']
 
         return self._add_record(PTRResourceRecordSet, **values)
-
-    def create_soa_record(self, name, values, ttl=60, weight=None, region=None,
-                          set_identifier=None):
-        """
-        Creates a SOA record attached to this hosted zone.
-
-        :param str name: The fully qualified name of the record to add.
-        :param list values: A list of value strings for the record.
-        :keyword int ttl: The time-to-live of the record (in seconds).
-        :keyword int weight: For weighted record sets only. Among resource record
-            sets that have the same combination of DNS name and type, a value
-            that determines what portion of traffic for the current resource
-            record set is routed to the associated location. Ranges from 0-255.
-        :keyword str region: For latency-based record sets. The Amazon EC2 region
-            where the resource that is specified in this resource record set
-            resides.
-        :keyword str set_identifier: For weighted and latency resource record
-            sets only. An identifier that differentiates among multiple
-            resource record sets that have the same combination of DNS name
-            and type. 1-128 chars.
-        :rtype: tuple
-        :returns: A tuple in the form of ``(rrset, change_info)``, where
-            ``rrset`` is the newly created SOAResourceRecordSet instance.
-        """
-
-        self._halt_if_already_deleted()
-
-        # Grab the params/kwargs here for brevity's sake.
-        values = locals()
-        del values['self']
-
-        return self._add_record(SOAResourceRecordSet, **values)
 
     def create_spf_record(self, name, values, ttl=60):
         """

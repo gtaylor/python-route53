@@ -17,7 +17,7 @@ def create_hosted_zone_writer(connection, name, caller_reference, comment):
 
     e_root = etree.Element(
         "CreateHostedZoneRequest",
-        xmlns=connection.xml_namespace
+        xmlns=connection._xml_namespace
     )
 
     e_name = etree.SubElement(e_root, "Name")

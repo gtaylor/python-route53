@@ -13,11 +13,10 @@ class Route53Connection(object):
     :py:class:`HostedZone <route53.hosted_zone.HostedZone>` instances.
 
     .. warning:: Do not instantiate instances of this class yourself.
-
-    :attr endpoint_version: The date-based API version.
     """
 
     endpoint_version = '2012-02-29'
+    """The date-based API version. Mostly visible for your reference."""
 
     def __init__(self, aws_access_key_id, aws_secret_access_key):
         """
@@ -25,11 +24,11 @@ class Route53Connection(object):
         :param str aws_secret_access_key: An account's secret access key.
         """
 
-        self.endpoint = 'https://route53.amazonaws.com/%s/' % self.endpoint_version
-        self.xml_namespace = 'https://route53.amazonaws.com/doc/%s/' % self.endpoint_version
-        self.aws_access_key_id = aws_access_key_id
-        self.aws_secret_access_key = aws_secret_access_key
-        self.transport = RequestsTransport(self)
+        self._endpoint = 'https://route53.amazonaws.com/%s/' % self.endpoint_version
+        self._xml_namespace = 'https://route53.amazonaws.com/doc/%s/' % self.endpoint_version
+        self._aws_access_key_id = aws_access_key_id
+        self._aws_secret_access_key = aws_secret_access_key
+        self._transport = RequestsTransport(self)
 
     def _send_request(self, path, data, method):
         """
@@ -45,7 +44,7 @@ class Route53Connection(object):
         :returns: An lxml Element root.
         """
 
-        response_body = self.transport.send_request(path, data, method)
+        response_body = self._transport.send_request(path, data, method)
         root = etree.fromstring(response_body)
         #print(prettyprint_xml(root))
         return root

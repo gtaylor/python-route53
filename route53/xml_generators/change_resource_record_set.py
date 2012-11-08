@@ -109,7 +109,7 @@ def change_resource_record_set_writer(connection, change_set, comment=None):
 
     e_root = etree.Element(
         "ChangeResourceRecordSetsRequest",
-        xmlns=connection.xml_namespace
+        xmlns=connection._xml_namespace
     )
 
     e_change_batch = etree.SubElement(e_root, "ChangeBatch")

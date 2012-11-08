@@ -33,7 +33,7 @@ class BaseTransport(object):
         :returns: The Route53 API endpoint to query against.
         """
 
-        return self.connection.endpoint
+        return self.connection._endpoint
 
     def _hmac_sign_string(self, string_to_sign):
         """
@@ -55,7 +55,7 @@ class BaseTransport(object):
         # Just use SHA256, since we're all running modern versions
         # of Python (right?).
         new_hmac = hmac.new(
-            self.connection.aws_secret_access_key.encode('utf-8'),
+            self.connection._aws_secret_access_key.encode('utf-8'),
             digestmod=hashlib.sha256
         )
         new_hmac.update(string_to_sign.encode('utf-8'))
@@ -77,7 +77,7 @@ class BaseTransport(object):
 
         # Amazon's super fun auth token.
         auth_header = "AWS3-HTTPS AWSAccessKeyId=%s,Algorithm=HmacSHA256,Signature=%s" % (
-            self.connection.aws_access_key_id,
+            self.connection._aws_access_key_id,
             signing_key,
         )
 
