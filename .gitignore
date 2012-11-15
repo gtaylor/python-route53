@@ -8,3 +8,4 @@ dist
 tests/credentials.py
 doc_src/_build/*
 .DS_Store
+*.egg-info
