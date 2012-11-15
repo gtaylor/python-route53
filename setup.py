@@ -5,7 +5,7 @@ DESCRIPTION = "A simple Route53 API for Python 2.7/3.x, powered by requests."
 LONG_DESCRIPTION = open('README.rst').read()
 
 CLASSIFIERS = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: BSD License',
     'Operating System :: OS Independent',
@@ -16,7 +16,7 @@ CLASSIFIERS = [
 
 setup(
     name='route53',
-    version='0.1',
+    version='1.0',
     packages=[
         'route53',
         'route53.xml_parsers',

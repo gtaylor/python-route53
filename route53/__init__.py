@@ -6,7 +6,7 @@ function to get a
 instance to work with the Route 53 API.
 """
 
-VERSION = '0.1'
+VERSION = '1.0'
 
 def connect(aws_access_key_id=None, aws_secret_access_key=None, **kwargs):
     """
