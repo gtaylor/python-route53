@@ -183,6 +183,7 @@ class RequestsTransport(BaseTransport):
         """
 
         r = requests.get(self.endpoint + path, params=params, headers=headers)
+        r.raise_for_status()
         return r.text
 
     def _send_post_request(self, path, data, headers):
