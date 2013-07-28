@@ -306,7 +306,7 @@ class Route53Connection(object):
         #print(prettyprint_xml(root))
 
         e_change_info = root.find('./{*}ChangeInfo')
-        if not e_change_info:
+        if e_change_info is None:
             error = root.find('./{*}Error').find('./{*}Message').text
             raise Route53Error(error)
         return parse_change_info(e_change_info)

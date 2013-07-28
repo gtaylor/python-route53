@@ -3,6 +3,8 @@ Various utility stuff that is useful across the codebase.
 """
 
 import datetime
+import re
+
 import pytz
 from lxml import etree
 
@@ -18,7 +20,12 @@ def parse_iso_8601_time_str(time_str):
     :rtype: datetime.datetime
     :returns: A timezone aware (UTC) datetime.datetime instance.
     """
-    submitted_at = datetime.datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+    if re.search('\.\d{3}Z$', time_str):
+        submitted_at = datetime.datetime.strptime(time_str, \
+            '%Y-%m-%dT%H:%M:%S.%fZ')
+    else:
+        submitted_at = datetime.datetime.strptime(time_str, \
+            '%Y-%m-%dT%H:%M:%SZ')
     # Parse the string, and make it explicitly UTC.
     return submitted_at.replace(tzinfo=UTC_TIMEZONE)
 
