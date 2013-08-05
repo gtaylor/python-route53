@@ -141,4 +141,3 @@ class ResourceRecordSetTestCase(BaseTestCase):
         # Initial values should equal current values after the save.
         for key, val in new_record._initial_vals.items():
             self.assertEqual(getattr(new_record, key), val)
-

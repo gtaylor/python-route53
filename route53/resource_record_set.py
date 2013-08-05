@@ -193,7 +193,7 @@ class AResourceRecordSet(ResourceRecordSet):
 class AAAAResourceRecordSet(ResourceRecordSet):
     """
     Specific AAAA record class. Create these via
-    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_aaaa_record>`.
+    :py:meth:`HostedZone.create_aaaa_record <route53.hosted_zone.HostedZone.create_aaaa_record>`.
     Retrieve them via
     :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
@@ -204,7 +204,7 @@ class AAAAResourceRecordSet(ResourceRecordSet):
 class CNAMEResourceRecordSet(ResourceRecordSet):
     """
     Specific CNAME record class. Create these via
-    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_cname_record>`.
+    :py:meth:`HostedZone.create_cname_record <route53.hosted_zone.HostedZone.create_cname_record>`.
     Retrieve them via
     :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
@@ -215,7 +215,7 @@ class CNAMEResourceRecordSet(ResourceRecordSet):
 class MXResourceRecordSet(ResourceRecordSet):
     """
     Specific MX record class. Create these via
-    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_mx_record>`.
+    :py:meth:`HostedZone.create_mx_record <route53.hosted_zone.HostedZone.create_mx_record>`.
     Retrieve them via
     :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
@@ -226,7 +226,7 @@ class MXResourceRecordSet(ResourceRecordSet):
 class NSResourceRecordSet(ResourceRecordSet):
     """
     Specific NS record class. Create these via
-    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_ns_record>`.
+    :py:meth:`HostedZone.create_ns_record <route53.hosted_zone.HostedZone.create_ns_record>`.
     Retrieve them via
     :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
@@ -237,7 +237,7 @@ class NSResourceRecordSet(ResourceRecordSet):
 class PTRResourceRecordSet(ResourceRecordSet):
     """
     Specific PTR record class. Create these via
-    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_ptr_record>`.
+    :py:meth:`HostedZone.create_ptr_record <route53.hosted_zone.HostedZone.create_ptr_record>`.
     Retrieve them via
     :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
@@ -265,7 +265,7 @@ class SOAResourceRecordSet(ResourceRecordSet):
 class SPFResourceRecordSet(ResourceRecordSet):
     """
     Specific SPF record class. Create these via
-    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_spf_record>`.
+    :py:meth:`HostedZone.create_spf_record <route53.hosted_zone.HostedZone.create_spf_record>`.
     Retrieve them via
     :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
@@ -276,7 +276,7 @@ class SPFResourceRecordSet(ResourceRecordSet):
 class SRVResourceRecordSet(ResourceRecordSet):
     """
     Specific SRV record class. Create these via
-    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_srv_record>`.
+    :py:meth:`HostedZone.create_srv_record <route53.hosted_zone.HostedZone.create_srv_record>`.
     Retrieve them via
     :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """
@@ -287,7 +287,7 @@ class SRVResourceRecordSet(ResourceRecordSet):
 class TXTResourceRecordSet(ResourceRecordSet):
     """
     Specific TXT record class. Create these via
-    :py:meth:`HostedZone.create_a_record <route53.hosted_zone.HostedZone.create_txt_record>`.
+    :py:meth:`HostedZone.create_txt_record <route53.hosted_zone.HostedZone.create_txt_record>`.
     Retrieve them via
     :py:meth:`HostedZone.record_sets <route53.hosted_zone.HostedZone.record_sets>`.
     """

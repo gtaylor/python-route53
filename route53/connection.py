@@ -1,5 +1,6 @@
 from lxml import etree
 from route53 import xml_parsers, xml_generators
+from route53.exceptions import Route53Error
 from route53.transport import RequestsTransport
 #from route53.util import prettyprint_xml
 from route53.xml_parsers.common_change_info import parse_change_info
@@ -305,4 +306,7 @@ class Route53Connection(object):
         #print(prettyprint_xml(root))
 
         e_change_info = root.find('./{*}ChangeInfo')
+        if e_change_info is None:
+            error = root.find('./{*}Error').find('./{*}Message').text
+            raise Route53Error(error)
         return parse_change_info(e_change_info)
