@@ -190,7 +190,7 @@ class AResourceRecordSet(ResourceRecordSet):
         return self.alias_hosted_zone_id or self.alias_dns_name
 
 
-class AAAAResourceRecordSet(ResourceRecordSet):
+class AAAAResourceRecordSet(AResourceRecordSet):
     """
     Specific AAAA record class. Create these via
     :py:meth:`HostedZone.create_aaaa_record <route53.hosted_zone.HostedZone.create_aaaa_record>`.
