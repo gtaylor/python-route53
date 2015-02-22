@@ -5,7 +5,7 @@ from route53.util import prettyprint_xml
 def get_change_values(change):
     """
     In the case of deletions, we pull the change values for the XML request
-    from the ResourceRecordSet._initial_vas dict, since we want the original
+    from the ResourceRecordSet._initial_vals dict, since we want the original
     values. For creations, we pull from the attributes on ResourceRecordSet.
 
     Since we're dealing with attributes vs. dict key/vals, we'll abstract
