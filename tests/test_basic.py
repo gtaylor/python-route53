@@ -135,7 +135,7 @@ class ResourceRecordSetTestCase(BaseTestCase):
         )
         self.assertIsInstance(change_info, dict)
 
-        new_record.values = ['8.8.8.7']
+        new_record.records = ['8.8.8.7']
         new_record.save()
 
         # Initial values should equal current values after the save.

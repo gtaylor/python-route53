@@ -55,7 +55,7 @@ class ResourceRecordSet(object):
             zone_id=zone_id,
             name=name,
             ttl=ttl,
-            records=records,
+            records=records[:],
             region=region,
             weight=weight,
             set_identifier=set_identifier,
@@ -89,7 +89,7 @@ class ResourceRecordSet(object):
             and ``False`` if not.
         """
 
-        for key, val in self._initial_vals:
+        for key, val in self._initial_vals.items():
             if getattr(self, key) != val:
                 # One of the initial values doesn't match, we know
                 # this object has been touched.

@@ -15,7 +15,9 @@ def parse_change_info(e_change_info):
     :returns: A dict representation of the change info.
     """
 
-    id = e_change_info.find('./{*}Id').text
+    if e_change_info is None:
+        return e_change_info
+
     status = e_change_info.find('./{*}Status').text
     submitted_at = e_change_info.find('./{*}SubmittedAt').text
     submitted_at = parse_iso_8601_time_str(submitted_at)
