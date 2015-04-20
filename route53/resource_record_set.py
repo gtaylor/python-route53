@@ -211,6 +211,39 @@ class CNAMEResourceRecordSet(ResourceRecordSet):
 
     rrset_type = 'CNAME'
 
+    def __init__(self, alias_hosted_zone_id=None, alias_dns_name=None, *args, **kwargs):
+        """
+        :keyword str alias_hosted_zone_id: Alias CNAME records have this specified.
+            It appears to be the hosted zone ID for the ELB the Alias points at.
+        :keyword str alias_dns_name: Alias CNAME records have this specified. It is
+            the DNS name for the ELB that the Alias points to.
+        """
+
+        super(CNAMEResourceRecordSet, self).__init__(*args, **kwargs)
+
+        self.alias_hosted_zone_id = alias_hosted_zone_id
+        self.alias_dns_name = alias_dns_name
+
+        # Keep track of the initial values for this record set. We use this
+        # to detect changes that need saving.
+        self._initial_vals.update(
+            dict(
+                alias_hosted_zone_id=alias_hosted_zone_id,
+                alias_dns_name=alias_dns_name,
+            )
+        )
+
+    def is_alias_record_set(self):
+        """
+        Checks whether this is an A record in Alias mode.
+
+        :rtype: bool
+        :returns: ``True`` if this is an A record in Alias mode, and
+            ``False`` otherwise.
+        """
+
+        return self.alias_hosted_zone_id or self.alias_dns_name
+
 
 class MXResourceRecordSet(ResourceRecordSet):
     """
