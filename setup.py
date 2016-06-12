@@ -30,5 +30,5 @@ setup(
     long_description=LONG_DESCRIPTION,
     platforms=['any'],
     classifiers=CLASSIFIERS,
-    install_requires=['requests==0.14.1', 'lxml', 'pytz'],
+    install_requires=['requests', 'lxml', 'pytz'],
 )
