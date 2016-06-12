@@ -16,7 +16,7 @@ CLASSIFIERS = [
 
 setup(
     name='route53',
-    version='1.0',
+    version='1.0.1',
     packages=[
         'route53',
         'route53.xml_parsers',
