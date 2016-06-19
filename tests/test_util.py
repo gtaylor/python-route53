@@ -1,8 +1,9 @@
 import unittest
+from datetime import timedelta, datetime, tzinfo
 
 from tests.test_basic import BaseTestCase
 
-from datetime import timedelta, datetime, tzinfo
+
 class UTC(tzinfo):
     """UTC"""
 
