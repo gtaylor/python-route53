@@ -3,6 +3,7 @@ python-route53
 
 :Info: A Python 2.7/3.x compatible Route53 module.
 :Author: Greg Taylor
+:Status: No longer actively maintained. Speak up if interested in taking over!
 
 The ``python-route53`` Python package is a simple Python 3 compatible API for
 Amazon's `Route 53`_.
